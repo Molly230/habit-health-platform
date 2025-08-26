@@ -13,11 +13,11 @@ const chatHttp = axios.create({
 // 请求拦截器
 chatHttp.interceptors.request.use(
   (config) => {
-    console.log('发送聊天请求:', config.url)
+    // 发送聊天请求
     return config
   },
   (error) => {
-    console.error('请求配置错误:', error)
+    // 请求配置错误
     return Promise.reject(error)
   }
 )
@@ -25,11 +25,11 @@ chatHttp.interceptors.request.use(
 // 响应拦截器
 chatHttp.interceptors.response.use(
   (response) => {
-    console.log('收到聊天响应:', response.data)
+    // 收到聊天响应
     return response.data
   },
   (error) => {
-    console.error('聊天服务错误:', error)
+    // 聊天服务错误
     
     if (error.code === 'ECONNABORTED') {
       return Promise.reject(new Error('请求超时，请检查网络连接'))
@@ -56,7 +56,7 @@ export const chatAPI = {
       })
       return response
     } catch (error) {
-      console.error('发送消息失败:', error)
+      // 发送消息失败
       throw error
     }
   },
@@ -67,7 +67,7 @@ export const chatAPI = {
       const response = await chatHttp.get('/health')
       return response
     } catch (error) {
-      console.error('健康检查失败:', error)
+      // 健康检查失败
       throw new Error('中医智能助手服务不可用')
     }
   },
@@ -78,7 +78,7 @@ export const chatAPI = {
       const response = await chatHttp.get('/knowledge')
       return response
     } catch (error) {
-      console.error('获取知识库失败:', error)
+      // 获取知识库失败
       throw error
     }
   }

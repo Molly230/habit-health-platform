@@ -17,8 +17,7 @@ const API_CONFIG = {
 // 获取当前环境配置
 const getCurrentConfig = () => {
   const env = import.meta.env.MODE || 'development'
-  console.log('当前环境:', env)
-  console.log('API地址:', API_CONFIG[env].baseURL)
+  // 当前环境和API地址已配置
   return API_CONFIG[env] || API_CONFIG.development
 }
 

@@ -327,7 +327,6 @@ onMounted(() => {
     try {
       diagnosisData.value = JSON.parse(storedDiagnosis)
     } catch (e) {
-      console.log('无法解析诊断数据')
     }
   }
 })

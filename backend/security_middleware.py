@@ -14,8 +14,9 @@ def configure_security(app: Flask):
     # 1. CORS安全配置
     CORS(app, 
          origins=[
-             "https://your-domain.vercel.app",
-             "https://insomnia-ai-doctor-frontend.onrender.com"
+             "https://*.vercel.app",
+             "https://*.onrender.com",
+             "https://*.up.railway.app"
          ],
          supports_credentials=True)
     

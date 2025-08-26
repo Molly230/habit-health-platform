@@ -211,7 +211,6 @@ const loadQuestions = async () => {
     isLoading.value = false
   } catch (error) {
     ElMessage.error('加载问题失败')
-    console.error(error)
   }
 }
 
@@ -297,7 +296,6 @@ const submitAnswers = async () => {
     
   } catch (error) {
     ElMessage.error('提交失败，请重试')
-    console.error(error)
   } finally {
     isSubmitting.value = false
   }

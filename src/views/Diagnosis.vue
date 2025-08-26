@@ -212,10 +212,8 @@ const loadDiagnosisData = () => {
     const storedDiagnosis = localStorage.getItem('latestDiagnosis')
     if (storedDiagnosis) {
       diagnosisData.value = JSON.parse(storedDiagnosis)
-      console.log('加载的诊断数据:', diagnosisData.value)
     }
   } catch (error) {
-    console.error('解析诊断数据失败:', error)
   }
 }
 

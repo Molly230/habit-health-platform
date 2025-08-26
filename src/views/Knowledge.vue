@@ -334,7 +334,6 @@ const dietRecipes = ref([
 ])
 
 const handleTabClick = (tab) => {
-  console.log('切换到:', tab.props.name)
 }
 </script>
 

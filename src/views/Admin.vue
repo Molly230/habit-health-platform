@@ -403,7 +403,6 @@ const loadDashboard = async () => {
       dashboardData.value = response.data.data
     }
   } catch (error) {
-    console.error('加载仪表盘数据失败:', error)
     ElMessage.error('加载仪表盘数据失败')
   }
 }
@@ -424,7 +423,6 @@ const loadPatients = async () => {
       patientTotal.value = response.data.data.pagination.total
     }
   } catch (error) {
-    console.error('加载患者数据失败:', error)
     ElMessage.error('加载患者数据失败')
   } finally {
     patientsLoading.value = false
@@ -448,7 +446,6 @@ const loadDiagnoses = async () => {
       diagnosisTotal.value = response.data.data.pagination.total
     }
   } catch (error) {
-    console.error('加载诊断数据失败:', error)
     ElMessage.error('加载诊断数据失败')
   } finally {
     diagnosesLoading.value = false
@@ -481,7 +478,6 @@ const viewPatientDetail = async (patient) => {
       patientDetailVisible.value = true
     }
   } catch (error) {
-    console.error('获取患者详情失败:', error)
     ElMessage.error('获取患者详情失败')
   }
 }
@@ -495,7 +491,6 @@ const viewDiagnosisDetail = async (diagnosis) => {
       diagnosisDetailVisible.value = true
     }
   } catch (error) {
-    console.error('获取诊断详情失败:', error)
     ElMessage.error('获取诊断详情失败')
   }
 }

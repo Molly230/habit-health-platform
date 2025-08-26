@@ -14,7 +14,7 @@ const consultationHttp = axios.create({
 consultationHttp.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    console.error('问诊API错误:', error)
+    // 问诊API错误
     return Promise.reject(error)
   }
 )
@@ -246,7 +246,7 @@ export const getQuestions = async () => {
       total_questions: hardcodedQuestions.length
     }
   } catch (error) {
-    console.error('获取问题失败:', error)
+    // 获取问题失败
     throw new Error('无法获取问诊问题，请重试')
   }
 }
@@ -277,7 +277,7 @@ export const submitQuestionnaireAnswers = async (answers) => {
     return response
     
   } catch (error) {
-    console.error('提交问卷失败:', error)
+    // 提交问卷失败
     throw new Error('诊断分析失败，请重试')
   }
 }

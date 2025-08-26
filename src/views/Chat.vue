@@ -251,7 +251,6 @@ const userId = ref('user-' + Date.now())
 
 // 组件挂载时初始化
 onMounted(() => {
-  console.log('中医智能助手已加载')
   checkServiceStatus()
   loadKnowledgeTopics()
 })
@@ -307,7 +306,6 @@ const sendMessage = async () => {
     }
     
   } catch (error) {
-    console.error('发送消息失败:', error)
     ElMessage.error('发送失败: ' + error.message)
     
     // 添加错误提示消息
@@ -428,7 +426,6 @@ const loadKnowledgeTopics = async () => {
       knowledgeTopics.value = response.data.topics
     }
   } catch (error) {
-    console.error('加载知识库失败:', error)
   }
 }
 

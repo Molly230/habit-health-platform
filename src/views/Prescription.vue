@@ -342,7 +342,7 @@ const loadDiagnosisData = () => {
     const storedDiagnosis = localStorage.getItem('latestDiagnosis')
     if (storedDiagnosis) {
       diagnosisData.value = JSON.parse(storedDiagnosis)
-      console.log('诊断数据:', diagnosisData.value)
+      // 诊断数据已加载
     } else {
       // 如果没有存储数据，使用示例数据
       diagnosisData.value = {
@@ -365,7 +365,7 @@ const loadDiagnosisData = () => {
       }
     }
   } catch (error) {
-    console.error('解析诊断数据失败:', error)
+    // 解析诊断数据失败
     // 错误时也使用示例数据
     diagnosisData.value = {
       sleep_quality: {
@@ -545,8 +545,6 @@ const finalPrice = computed(() => {
 
 // 处理组合购买
 const handleComboPurchase = (paymentMethod) => {
-  console.log('handleComboPurchase called:', paymentMethod)
-  console.log('selectedProducts.value.size:', selectedProducts.value.size)
   
   if (selectedProducts.value.size === 0) {
     ElMessage.warning('请先选择产品')
@@ -563,7 +561,6 @@ const handleComboPurchase = (paymentMethod) => {
     orderTime: new Date().toLocaleString()
   }
   
-  console.log('订单信息:', orderInfo)
   
   // 显示支付二维码
   showPaymentQR(paymentMethod, finalPrice.value)
@@ -571,8 +568,6 @@ const handleComboPurchase = (paymentMethod) => {
 
 // 显示支付二维码
 const showPaymentQR = (paymentMethod, amount) => {
-  console.log('showPaymentQR called:', paymentMethod, amount)
-  console.log('showPaymentModal before:', showPaymentModal.value)
   
   // 模拟生成支付二维码URL
   const mockQRData = {
@@ -582,7 +577,6 @@ const showPaymentQR = (paymentMethod, amount) => {
     products: Array.from(selectedProducts.value)
   }
   
-  console.log('mockQRData:', mockQRData)
   
   // 使用简单的SVG方式生成二维码
   const svgContent = `<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background: white;">
@@ -607,10 +601,8 @@ const showPaymentQR = (paymentMethod, amount) => {
   
   qrCodeUrl.value = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent)
   
-  console.log('qrCodeUrl set:', qrCodeUrl.value.substring(0, 100) + '...')
   
   showPaymentModal.value = true
-  console.log('showPaymentModal after:', showPaymentModal.value)
   
   ElMessage({
     message: `正在生成${paymentMethod === 'wechat' ? '微信' : '支付宝'}支付二维码...`,
