@@ -5,8 +5,8 @@
       <div class="banner-content">
         <el-icon class="banner-icon"><Moon /></el-icon>
         <div class="banner-text">
-          <h1>欢迎使用失眠智能诊疗系统</h1>
-          <p>基于中医理论的个性化失眠诊疗方案</p>
+          <h1>欢迎使用失眠健康管理系统</h1>
+          <p>基于传统兿生智慧的个性化睡眠健康方案</p>
         </div>
       </div>
     </el-card>
@@ -17,7 +17,7 @@
         <el-card class="feature-card" shadow="hover" @click="goToConsultation">
           <div class="feature-content">
             <el-icon class="feature-icon"><ChatRound /></el-icon>
-            <h3>智能问诊</h3>
+            <h3>智能评估</h3>
             <p>19项专业问题，全面了解您的睡眠状况</p>
           </div>
         </el-card>
@@ -27,8 +27,8 @@
         <el-card class="feature-card" shadow="hover">
           <div class="feature-content">
             <el-icon class="feature-icon"><TrendCharts /></el-icon>
-            <h3>二元诊断</h3>
-            <p>独创二元诊断系统，精准定位证型</p>
+            <h3>体质分析</h3>
+            <p>独创体质分析系统，精准定位体质类型</p>
           </div>
         </el-card>
       </el-col>
@@ -37,8 +37,8 @@
         <el-card class="feature-card" shadow="hover">
           <div class="feature-content">
             <el-icon class="feature-icon"><Setting /></el-icon>
-            <h3>个性化方案</h3>
-            <p>中药方剂、外治法、食疗三位一体</p>
+            <h3>个性化建议</h3>
+            <p>保健产品、兿生方法、食疗三位一体</p>
           </div>
         </el-card>
       </el-col>
@@ -47,7 +47,7 @@
         <el-card class="feature-card" shadow="hover">
           <div class="feature-content">
             <el-icon class="feature-icon"><Document /></el-icon>
-            <h3>专业知识</h3>
+            <h3>健康知识</h3>
             <p>丰富的中医失眠知识库，持续学习</p>
           </div>
         </el-card>

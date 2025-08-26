@@ -9,17 +9,25 @@ services:
     envVars:
       - key: FLASK_ENV
         value: production
-      - key: FLASK_DEBUG
+      - key: DEBUG
         value: false
       - key: PORT
         value: 10000
+      - key: SECRET_KEY
+        generateValue: true  # Render会自动生成安全的密钥
       - key: PYTHONPATH
         value: /opt/render/project/src/backend
+    # 健康检查
+    healthCheckPath: /api/health
     
-  # 前端静态文件
+  # 前端静态文件 - 单独服务
   - type: static
     name: insomnia-ai-doctor-frontend  
     staticPublishPath: ./dist
     buildCommand: "npm install && npm run build"
     pullRequestPreviewsEnabled: false
     plan: free
+    # 前端环境变量 - 指向后端API
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://insomnia-ai-doctor-backend.onrender.com/api

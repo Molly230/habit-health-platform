@@ -1,9 +1,10 @@
 import axios from 'axios'
+import { apiConfig } from '../config/api.js'
 
-// 创建axios实例 - 使用正确的后端地址
+// 创建axios实例 - 自动适配环境
 const chatHttp = axios.create({
-  baseURL: 'http://localhost:5000/api/chat', // Flask后端地址
-  timeout: 30000,
+  baseURL: `${apiConfig.baseURL}/chat`,
+  timeout: apiConfig.timeout,
   headers: {
     'Content-Type': 'application/json'
   }

@@ -3,13 +3,13 @@ from app.diagnosis.questionnaire import InsomniaQuestionnaire
 from app.models.diagnosis_models import QuestionnaireAnswer, PatientAnswers
 
 class TCMAIService:
-    """中医AI分身服务"""
+    """健康管理智能助手服务"""
     
     def __init__(self):
-        self.doctor_name = "中医师分身"
+        self.doctor_name = "健康管理助手"
         self.greeting_messages = [
-            f"您好！我是您的{self.doctor_name}，专注于失眠调理。",
-            "我会通过专业的中医问诊，为您提供个性化的失眠治疗方案。",
+            f"您好！我是您的{self.doctor_name}，专注于睡眠健康管理。",
+            "我会通过专业的健康评估，为您提供个性化的睡眠健康建议。",
             "请选择您需要的服务："
         ]
     

@@ -1,0 +1,34 @@
+version: 2
+
+services:
+  backend:
+    name: insomnia-ai-doctor-backend
+    source: backend
+    build:
+      commands:
+        - pip install -r requirements.txt
+        - python init_database.py
+        - mkdir -p logs  # 创建日志目录
+    start:
+      command: python run_app_with_db.py
+    env:
+      FLASK_ENV: production
+      DEBUG: false
+      PORT: $PORT
+      SECRET_KEY: $RAILWAY_SECRET_KEY
+      PYTHONPATH: /app/backend
+      # 安全配置
+      RATE_LIMIT_ENABLED: true
+      MAX_REQUESTS_PER_HOUR: 200
+      LOG_LEVEL: WARNING
+      # 数据库配置
+      DATABASE_BACKUP_ENABLED: true
+    healthcheck:
+      path: /api/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # 资源限制
+    resources:
+      memory: 512MB
+      cpu: 0.5

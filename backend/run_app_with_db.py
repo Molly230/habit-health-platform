@@ -44,8 +44,17 @@ def run_app():
             print("请检查数据库配置或重新初始化数据库")
             return
     
-    # 启动应用
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # 启动应用 - 根据环境配置
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV', 'development') == 'development'
+    
+    if debug:
+        print("访问地址: http://localhost:5000")
+        print("API文档: http://localhost:5000/api/")
+    else:
+        print("生产模式启动")
+    
+    app.run(debug=debug, host='0.0.0.0', port=port)
 
 if __name__ == "__main__":
     run_app()

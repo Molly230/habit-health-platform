@@ -1,9 +1,10 @@
 import axios from 'axios'
+import { apiConfig } from '../config/api.js'
 
 // 创建axios实例
 const consultationHttp = axios.create({
-  baseURL: 'http://localhost:5000/api/consultation',
-  timeout: 10000,
+  baseURL: `${apiConfig.baseURL}/consultation`,
+  timeout: apiConfig.timeout,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -255,7 +256,7 @@ export const submitQuestionnaireAnswers = async (answers) => {
   try {
     // 调用诊断API
     const diagnosisHttp = axios.create({
-      baseURL: 'http://localhost:5000/api/diagnosis',
+      baseURL: `${apiConfig.baseURL}/diagnosis`,
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json'

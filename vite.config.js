@@ -15,6 +15,19 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        // 手动分包优化
+        manualChunks: {
+          // Vue框架包
+          'vue-vendor': ['vue', 'vue-router', 'pinia'],
+          // Element Plus UI库
+          'element-plus-vendor': ['element-plus', '@element-plus/icons-vue'],
+          // HTTP请求库
+          'axios-vendor': ['axios']
+        }
+      }
+    }
   }
 })

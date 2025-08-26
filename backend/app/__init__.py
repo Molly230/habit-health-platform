@@ -59,4 +59,21 @@ def create_app():
     # app.register_blueprint(wechat_bp, url_prefix='/api')
     # app.register_blueprint(work_wechat_bp, url_prefix='/api')
     
+    # 添加健康检查端点
+    @app.route('/api/health')
+    def health_check():
+        """健康检查端点"""
+        try:
+            # 检查数据库连接
+            from app.models.database_models import Doctor
+            Doctor.query.count()
+            return {'status': 'ok', 'message': '失眠AI诊疗系统运行正常'}, 200
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}, 500
+    
+    @app.route('/')
+    def index():
+        """根路径"""
+        return {'message': '失眠AI诊疗系统API', 'status': 'running'}, 200
+    
     return app

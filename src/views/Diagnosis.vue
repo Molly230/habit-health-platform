@@ -4,19 +4,19 @@
       <template #header>
         <div class="card-header">
           <el-icon><TrendCharts /></el-icon>
-          <span>诊断结果</span>
+          <span>健康评估报告</span>
         </div>
       </template>
 
       <div v-if="!hasResult" class="no-result">
         <el-result
           icon="warning"
-          title="暂无诊断结果"
-          sub-title="请先完成问诊评估"
+          title="暂无评估报告"
+          sub-title="请先完成健康评估"
         >
           <template #extra>
             <el-button type="primary" @click="goToConsultation">
-              开始问诊
+              开始评估
               <el-icon><Right /></el-icon>
             </el-button>
           </template>
@@ -25,10 +25,10 @@
 
       <div v-else class="result-content">
         <el-steps :active="3" finish-status="success" align-center class="result-steps">
-          <el-step title="问诊评估" description="已完成18项问题" />
-          <el-step title="数据分析" description="二元诊断系统分析" />
-          <el-step title="证型判定" description="确定最终证型" />
-          <el-step title="治疗方案" description="生成个性化建议" />
+          <el-step title="健康评估" description="已完成18项问题" />
+          <el-step title="数据分析" description="体质分析系统分析" />
+          <el-step title="体质类型" description="确定最终体质类型" />
+          <el-step title="健康建议" description="生成个性化建议" />
         </el-steps>
 
         <!-- 睡眠质量评估 -->
@@ -65,20 +65,20 @@
           </el-row>
         </div>
 
-        <!-- 证型诊断结果 -->
+        <!-- 体质分析结果 -->
         <div class="diagnosis-result">
-          <h2>🔍 证型诊断</h2>
+          <h2>🔍 体质类型分析</h2>
           <el-descriptions :column="2" border>
-            <el-descriptions-item label="最终诊断">
+            <el-descriptions-item label="体质类型">
               <el-tag type="primary" size="large">{{ displayData?.syndromeDiagnosis }}</el-tag>
             </el-descriptions-item>
-            <el-descriptions-item label="诊断置信度">
+            <el-descriptions-item label="匹配度">
               <el-progress :percentage="(displayData?.confidence || 0) * 100" :color="getConfidenceColor(displayData?.confidence || 0)" />
             </el-descriptions-item>
-            <el-descriptions-item label="主要证型">
+            <el-descriptions-item label="主要特征">
               <el-tag type="success">{{ displayData?.primarySyndrome }}</el-tag>
             </el-descriptions-item>
-            <el-descriptions-item label="次要证型">
+            <el-descriptions-item label="次要特征">
               <el-tag type="info">{{ displayData?.secondarySyndrome }}</el-tag>
             </el-descriptions-item>
           </el-descriptions>
@@ -106,24 +106,24 @@
           </div>
         </div>
 
-        <!-- 治疗方案预览 -->
+        <!-- 健康建议预览 -->
         <div class="treatment-preview">
-          <h3>💊 个性化治疗方案</h3>
+          <h3>💊 个性化健康建议</h3>
           
           <el-alert 
             v-if="displayData?.needsProfessional"
-            title="建议专业医生咨询"
+            title="建议专业健康顾问咨询"
             type="warning"
             :closable="false"
             show-icon
             class="professional-alert"
           >
-            根据您的症状评估结果，建议咨询专业中医师制定详细治疗方案。
+            根据您的症状评估结果，建议咨询专业健康顾问制定详细建议方案。
           </el-alert>
           
           <div class="treatment-type-info">
             <el-tag type="primary" size="large">
-              治疗类型：{{ displayData?.treatmentType }}
+              建议类型：{{ displayData?.treatmentType }}
             </el-tag>
           </div>
           
@@ -148,14 +148,14 @@
         <div class="action-buttons">
           <el-button size="large" @click="goToConsultation">
             <el-icon><Refresh /></el-icon>
-            重新问诊
+            重新评估
           </el-button>
           <el-button type="success" size="large" @click="consultWithDoctor">
             <el-icon><ChatDotRound /></el-icon>
-            咨询专业医生
+            咨询专业顾问
           </el-button>
           <el-button type="primary" size="large" @click="goToPrescription">
-            查看完整治疗方案
+            查看完整健康建议
             <el-icon><Right /></el-icon>
           </el-button>
         </div>
@@ -251,7 +251,7 @@ const getProductIcon = (product) => {
   if (product.includes('坚果')) return '🌰'
   if (product.includes('鱼油')) return '🐟'
   if (product.includes('穴位贴')) return '🎯'
-  if (product.includes('医生咨询')) return '👨‍⚕️'
+  if (product.includes('健康顾问咨询')) return '👨‍⚕️'
   return '💊'
 }
 
@@ -265,7 +265,8 @@ const getProductDescription = (product) => {
   if (product.includes('坚果营养包')) return '补肾填精，强筋健骨'
   if (product.includes('鱼油胶囊')) return '补脑益智，增强记忆'
   if (product.includes('穴位贴')) return '外治内调，疗效显著'
-  return '专业调理产品'
+  if (product.includes('健康顾问咨询')) return '专业健康管理服务'
+  return '专业保健产品'
 }
 
 const goToConsultation = () => {

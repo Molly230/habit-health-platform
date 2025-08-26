@@ -392,7 +392,8 @@ const selectedPatient = ref(null)
 const selectedDiagnosis = ref(null)
 
 // API配置
-const API_BASE = 'http://localhost:5000/api'
+import { apiConfig } from '../config/api.js'
+const API_BASE = apiConfig.baseURL
 
 // 加载仪表盘数据
 const loadDashboard = async () => {
