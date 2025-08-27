@@ -1,4 +1,4 @@
-// API配置 - 根据环境自动切换
+// API配置 - 纯静态模式
 const API_CONFIG = {
   // 开发环境 - 本地后端
   development: {
@@ -6,18 +6,17 @@ const API_CONFIG = {
     timeout: 30000
   },
   
-  // 生产环境 - Netlify + ngrok后端
+  // 生产环境 - 纯前端模式，不依赖后端
   production: {
-    // 优先使用环境变量，如果没有则使用代理
-    baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-    timeout: 30000
+    baseURL: '/api', // 由前端模拟
+    timeout: 30000,
+    staticMode: true // 启用纯静态模式
   }
 }
 
 // 获取当前环境配置
 const getCurrentConfig = () => {
   const env = import.meta.env.MODE || 'development'
-  // 当前环境和API地址已配置
   return API_CONFIG[env] || API_CONFIG.development
 }
 
