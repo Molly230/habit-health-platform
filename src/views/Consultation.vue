@@ -35,7 +35,7 @@
             @change="handleAnswerChange"
             class="radio-group"
           >
-            <el-row :gutter="12" justify="start">
+            <el-row :gutter="20" justify="start">
               <el-col 
                 :span="getColSpan(currentQuestion.options.length)"
                 v-for="option in currentQuestion.options" 
@@ -60,7 +60,7 @@
             @change="handleMultipleAnswerChange"
             class="checkbox-group"
           >
-            <el-row :gutter="12" justify="start">
+            <el-row :gutter="20" justify="start">
               <el-col 
                 :span="getColSpan(currentQuestion.options.length)"
                 v-for="option in currentQuestion.options" 
@@ -480,7 +480,8 @@ onMounted(() => {
 }
 
 .options-section {
-  margin-bottom: 40px;
+  margin-bottom: 50px;
+  padding: 0 10px;
 }
 
 .radio-group,
@@ -489,23 +490,24 @@ onMounted(() => {
 }
 
 .option-col {
-  margin-bottom: 20px;
+  margin-bottom: 28px;
+  padding: 0 12px;
 }
 
 .radio-option,
 .checkbox-option {
   width: 100%;
-  padding: 16px 20px;
-  margin: 8px 0;
+  padding: 18px 20px;
+  margin: 16px 0;
   border: 1px solid #e4e7ed;
-  border-radius: 8px;
+  border-radius: 10px;
   transition: all 0.3s;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  min-width: 120px;
+  min-height: 56px;
+  min-width: 140px;
   box-sizing: border-box;
   text-align: center;
 }
@@ -536,10 +538,10 @@ onMounted(() => {
 :deep(.el-radio__label),
 :deep(.el-checkbox__label) {
   flex: 1;
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 15px;
+  line-height: 1.6;
   color: #303133;
-  padding: 0 8px;
+  padding: 0 10px;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
