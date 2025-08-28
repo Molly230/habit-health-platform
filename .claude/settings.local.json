@@ -11,7 +11,19 @@
       "Bash(git log:*)",
       "Bash(deploy.bat)",
       "Bash(cmd.exe /c deploy.bat)",
-      "Bash(start deploy.bat)"
+      "Bash(start deploy.bat)",
+      "Read(C:\\Users\\administered\\.claude/**)",
+      "Bash(dir:*)",
+      "Read(C:\\Users\\administered\\.claude/**)",
+      "Read(C:\\Users\\administered\\.claude\\projects/**)",
+      "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(powershell:*)",
+      "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)",
+      "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)",
+      "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)",
+      "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)"
     ],
     "deny": [],
     "ask": []

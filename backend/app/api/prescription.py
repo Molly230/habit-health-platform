@@ -82,7 +82,7 @@ def generate_wellness_plan():
         
         return jsonify({
             'success': True,
-            'data': treatment_plan
+            'data': wellness_plan
         })
         
     except Exception as e:
