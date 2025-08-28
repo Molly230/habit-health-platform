@@ -1,7 +1,7 @@
 {
-  "name": "insomnia-ai-doctor-frontend",
+  "name": "insomnia-health-platform-frontend", 
   "version": "1.0.0",
-  "description": "失眠智能诊疗系统前端",
+  "description": "失眠健康管理平台前端",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -24,8 +24,8 @@
   },
   "keywords": [
     "tcm",
-    "insomnia",
-    "diagnosis",
+    "insomnia", 
+    "health-management",
     "vue3"
   ],
   "author": "TCM Doctor",

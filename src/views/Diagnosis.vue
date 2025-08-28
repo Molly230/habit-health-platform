@@ -39,7 +39,7 @@
               <el-card class="score-card" shadow="never">
                 <div class="score-display">
                   <div class="score-number">{{ displayData?.sleepScore || 0 }}</div>
-                  <div class="score-total">/ {{ displayData?.maxScore || 64 }}分</div>
+                  <div class="score-total">/ {{ displayData?.maxScore || 96 }}分</div>
                 </div>
                 <el-tag 
                   :type="getSleepGradeType(displayData?.sleepGrade)" 
@@ -67,7 +67,7 @@
 
         <!-- 体质分析结果 -->
         <div class="diagnosis-result">
-          <h2>🔍 体质类型分析</h2>
+          <h2>🔍 体质类型参考分析</h2>
           <el-descriptions :column="2" border>
             <el-descriptions-item label="体质类型">
               <el-tag type="primary" size="large">{{ displayData?.syndromeDiagnosis }}</el-tag>
@@ -82,6 +82,31 @@
               <el-tag type="info">{{ displayData?.secondarySyndrome }}</el-tag>
             </el-descriptions-item>
           </el-descriptions>
+          
+          <!-- 二元诊断详情 -->
+          <div v-if="displayData?.binaryDiagnosis" class="binary-diagnosis-info">
+            <h4>🔬 二元诊断详情</h4>
+            <el-row :gutter="20">
+              <el-col :span="12">
+                <div class="diagnosis-dimension">
+                  <span class="dimension-label">行维度：</span>
+                  <el-tag type="primary">{{ displayData.binaryDiagnosis.rowDimension }}</el-tag>
+                  <span class="score-info">(得分: {{ displayData.binaryDiagnosis.rowScore }})</span>
+                </div>
+              </el-col>
+              <el-col :span="12">
+                <div class="diagnosis-dimension">
+                  <span class="dimension-label">列维度：</span>
+                  <el-tag type="success">{{ displayData.binaryDiagnosis.columnDimension }}</el-tag>
+                  <span class="score-info">(得分: {{ displayData.binaryDiagnosis.columnScore }})</span>
+                </div>
+              </el-col>
+            </el-row>
+            <div class="matrix-result">
+              <el-icon><Connection /></el-icon>
+              <span>{{ displayData.binaryDiagnosis.rowDimension }} × {{ displayData.binaryDiagnosis.columnDimension }} = {{ displayData?.syndromeDiagnosis }}</span>
+            </div>
+          </div>
           
           <!-- 维度分析 -->
           <div v-if="displayData?.dimensions" class="dimension-analysis">
@@ -108,17 +133,17 @@
 
         <!-- 健康建议预览 -->
         <div class="treatment-preview">
-          <h3>💊 个性化健康建议</h3>
+          <h3>💊 个性化调理建议</h3>
           
           <el-alert 
             v-if="displayData?.needsProfessional"
-            title="建议专业健康顾问咨询"
+            title="建议咨询专业健康管理师"
             type="warning"
             :closable="false"
             show-icon
             class="professional-alert"
           >
-            根据您的症状评估结果，建议咨询专业健康顾问制定详细建议方案。
+            根据您的症状评估结果，建议咨询专业健康管理师制定详细调理方案。
           </el-alert>
           
           <div class="treatment-type-info">
@@ -127,21 +152,81 @@
             </el-tag>
           </div>
           
-          <div v-if="displayData?.products?.length > 0" class="product-preview">
+          <div v-if="displayData?.recommendedProducts?.length > 0" class="product-preview">
             <h4>推荐产品</h4>
+            
+            <!-- 组合优惠信息 -->
+            <div v-if="displayData?.comboOffer" class="combo-offer">
+              <el-alert type="success" :closable="false">
+                <template #title>
+                  🎁 组合优惠：立省 ¥{{ displayData.comboOffer.savings }} 元（{{ displayData.comboOffer.discount }}% OFF）
+                </template>
+                原价：¥{{ displayData.comboOffer.totalPrice }} | 优惠价：¥{{ displayData.comboOffer.comboPrice }}
+              </el-alert>
+            </div>
+
             <el-row :gutter="20">
               <el-col 
                 :xs="24" :sm="12" :md="8" 
-                v-for="(product, index) in displayData.products" 
-                :key="index"
+                v-for="product in displayData.recommendedProducts" 
+                :key="product.id"
               >
-                <el-card class="treatment-card" shadow="hover">
-                  <div class="treatment-icon">{{ getProductIcon(product) }}</div>
-                  <h4>{{ product }}</h4>
-                  <p>{{ getProductDescription(product) }}</p>
+                <el-card class="product-card" shadow="hover">
+                  <div class="product-header">
+                    <div class="product-icon">{{ getProductIcon(product.name) }}</div>
+                    <div class="product-badge" v-if="product.sales > 200">
+                      <el-tag type="danger" size="small">热销</el-tag>
+                    </div>
+                  </div>
+                  
+                  <h4>{{ product.name }}</h4>
+                  <p class="product-description">{{ product.description }}</p>
+                  
+                  <div class="product-details">
+                    <div class="product-price">
+                      <span class="current-price">¥{{ product.price }}</span>
+                      <span class="original-price" v-if="product.originalPrice > product.price">
+                        ¥{{ product.originalPrice }}
+                      </span>
+                    </div>
+                    
+                    <div class="product-rating">
+                      <span class="rating-text">{{ product.rating }}分</span>
+                      <span class="sales-text">已售{{ product.sales }}件</span>
+                    </div>
+                  </div>
+
+                  <div class="product-actions">
+                    <el-button 
+                      type="primary" 
+                      size="small" 
+                      @click="addToCart(product)"
+                      :disabled="product.stock === 0"
+                    >
+                      {{ product.stock > 0 ? '加入购物车' : '暂时缺货' }}
+                    </el-button>
+                    <el-button 
+                      size="small" 
+                      @click="viewProductDetails(product)"
+                    >
+                      查看详情
+                    </el-button>
+                  </div>
                 </el-card>
               </el-col>
             </el-row>
+            
+            <!-- 一键购买组合 -->
+            <div v-if="displayData?.comboOffer" class="combo-purchase">
+              <el-button 
+                type="primary" 
+                size="large" 
+                @click="purchaseCombo"
+                class="combo-buy-btn"
+              >
+                🛒 一键购买组合套餐 - 仅需 ¥{{ displayData.comboOffer.comboPrice }}
+              </el-button>
+            </div>
           </div>
         </div>
 
@@ -152,10 +237,10 @@
           </el-button>
           <el-button type="success" size="large" @click="consultWithDoctor">
             <el-icon><ChatDotRound /></el-icon>
-            咨询专业顾问
+            咨询健康管理师
           </el-button>
           <el-button type="primary" size="large" @click="goToPrescription">
-            查看完整健康建议
+            查看完整调理建议
             <el-icon><Right /></el-icon>
           </el-button>
         </div>
@@ -167,7 +252,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { TrendCharts, Right, Refresh, ChatDotRound } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { TrendCharts, Right, Refresh, ChatDotRound, Connection } from '@element-plus/icons-vue'
+import { getRecommendedProducts, getComboPrice } from '../data/products.js'
 
 const router = useRouter()
 
@@ -196,24 +283,79 @@ const displayData = computed(() => {
     secondarySyndrome: data.syndrome_diagnosis?.secondary_syndrome || '未确定',
     confidence: data.syndrome_diagnosis?.confidence || 0,
     
-    // 维度分析
-    dimensions: data.syndrome_diagnosis?.dimension_analysis || {},
+    // 维度分析（转换新格式为显示格式）
+    dimensions: (() => {
+      const dimensionAnalysis = data.syndrome_diagnosis?.dimension_analysis || {}
+      const displayDimensions = {}
+      
+      // 将新格式 {维度名: {total_score: 分数}} 转换为 {维度名: 分数}
+      Object.keys(dimensionAnalysis).forEach(dimensionName => {
+        const dimensionData = dimensionAnalysis[dimensionName]
+        displayDimensions[dimensionName] = dimensionData?.total_score || 0
+      })
+      
+      return displayDimensions
+    })(),
+    
+    // 二元诊断信息
+    binaryDiagnosis: data.syndrome_diagnosis?.binary_diagnosis ? {
+      rowDimension: data.syndrome_diagnosis.binary_diagnosis.row_dimension,
+      rowScore: data.syndrome_diagnosis.binary_diagnosis.row_score,
+      columnDimension: data.syndrome_diagnosis.binary_diagnosis.column_dimension,
+      columnScore: data.syndrome_diagnosis.binary_diagnosis.column_score,
+      matrixKey: data.syndrome_diagnosis.binary_diagnosis.matrix_key
+    } : null,
     
     // 治疗方案预览
     treatmentType: data.treatment_plan?.treatment_type || '未确定',
     products: data.treatment_plan?.products || [],
-    needsProfessional: data.treatment_plan?.needs_professional || false
+    needsProfessional: data.treatment_plan?.needs_professional || false,
+    
+    // 详细产品信息
+    recommendedProducts: (() => {
+      const diagnosis = data.syndrome_diagnosis?.final_diagnosis
+      if (diagnosis) {
+        return getRecommendedProducts(diagnosis)
+      }
+      return []
+    })(),
+    
+    // 组合优惠信息
+    comboOffer: (() => {
+      const diagnosis = data.syndrome_diagnosis?.final_diagnosis
+      if (diagnosis) {
+        const products = getRecommendedProducts(diagnosis)
+        return getComboPrice(products)
+      }
+      return null
+    })()
   }
 })
 
 // 加载诊断数据
-const loadDiagnosisData = () => {
+const loadDiagnosisData = async () => {
   try {
     const storedDiagnosis = localStorage.getItem('latestDiagnosis')
     if (storedDiagnosis) {
       diagnosisData.value = JSON.parse(storedDiagnosis)
+      
+      // 同时保存到数据库（如果还没保存过）
+      const hasBeenSaved = localStorage.getItem('latestDiagnosisSaved')
+      if (!hasBeenSaved) {
+        const storedAnswers = localStorage.getItem('latestAnswers')
+        if (storedAnswers) {
+          const { saveDiagnosisResult } = await import('../api/consultation.js')
+          const answers = JSON.parse(storedAnswers)
+          const saveResult = await saveDiagnosisResult(answers, diagnosisData.value)
+          if (saveResult.success) {
+            localStorage.setItem('latestDiagnosisSaved', 'true')
+            console.log('诊断结果已保存到数据库')
+          }
+        }
+      }
     }
   } catch (error) {
+    console.warn('加载或保存诊断数据失败:', error)
   }
 }
 
@@ -279,8 +421,81 @@ const consultWithDoctor = () => {
   router.push('/doctor-consultation')
 }
 
+// 购物车功能
+const cart = ref([])
+
+const addToCart = (product) => {
+  // 检查购物车中是否已有该产品
+  const existingItem = cart.value.find(item => item.id === product.id)
+  if (existingItem) {
+    existingItem.quantity += 1
+  } else {
+    cart.value.push({
+      ...product,
+      quantity: 1
+    })
+  }
+  
+  // 保存到localStorage
+  localStorage.setItem('cart', JSON.stringify(cart.value))
+  
+  ElMessage({
+    message: `已将 ${product.name} 加入购物车`,
+    type: 'success',
+    duration: 2000
+  })
+}
+
+const viewProductDetails = (product) => {
+  // 保存产品详情到localStorage，然后跳转到产品详情页
+  localStorage.setItem('currentProduct', JSON.stringify(product))
+  router.push(`/product/${product.id}`)
+}
+
+const purchaseCombo = () => {
+  if (!displayData.value?.recommendedProducts) return
+  
+  // 将所有推荐产品加入购物车
+  displayData.value.recommendedProducts.forEach(product => {
+    const existingItem = cart.value.find(item => item.id === product.id)
+    if (!existingItem) {
+      cart.value.push({
+        ...product,
+        quantity: 1
+      })
+    }
+  })
+  
+  // 标记为组合购买，享受优惠价格
+  const comboInfo = displayData.value.comboOffer
+  localStorage.setItem('cart', JSON.stringify(cart.value))
+  localStorage.setItem('comboOffer', JSON.stringify(comboInfo))
+  
+  ElMessage({
+    message: `组合套餐已加入购物车，享受优惠价 ¥${comboInfo.comboPrice}`,
+    type: 'success',
+    duration: 3000
+  })
+  
+  // 跳转到购物车页面
+  router.push('/cart')
+}
+
+// 页面加载时恢复购物车
+const loadCart = () => {
+  try {
+    const savedCart = localStorage.getItem('cart')
+    if (savedCart) {
+      cart.value = JSON.parse(savedCart)
+    }
+  } catch (error) {
+    console.warn('加载购物车失败:', error)
+  }
+}
+
 onMounted(() => {
   loadDiagnosisData()
+  loadCart()
 })
 </script>
 
@@ -365,6 +580,98 @@ onMounted(() => {
 .treatment-card p {
   color: #7f8c8d;
   line-height: 1.6;
+}
+
+/* 新的产品卡片样式 */
+.product-card {
+  text-align: center;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.product-header {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.product-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.product-badge {
+  position: absolute;
+  top: -5px;
+  right: 10px;
+}
+
+.product-description {
+  color: #666;
+  font-size: 14px;
+  margin: 10px 0;
+  line-height: 1.4;
+}
+
+.product-details {
+  margin: 15px 0;
+}
+
+.product-price {
+  margin-bottom: 8px;
+}
+
+.current-price {
+  color: #e74c3c;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.original-price {
+  color: #bdc3c7;
+  font-size: 14px;
+  text-decoration: line-through;
+  margin-left: 8px;
+}
+
+.product-rating {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.rating-text {
+  color: #f39c12;
+}
+
+.product-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.combo-offer {
+  margin: 20px 0;
+}
+
+.combo-purchase {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.combo-buy-btn {
+  width: 100%;
+  max-width: 400px;
+  height: 50px;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .action-buttons {
@@ -465,5 +772,55 @@ onMounted(() => {
   color: #2c3e50;
   margin: 20px 0 15px 0;
   text-align: center;
+}
+
+/* 二元诊断详情样式 */
+.binary-diagnosis-info {
+  margin-top: 25px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #409eff;
+}
+
+.binary-diagnosis-info h4 {
+  color: #409eff;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.diagnosis-dimension {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dimension-label {
+  font-weight: bold;
+  color: #606266;
+  margin-right: 8px;
+  min-width: 70px;
+}
+
+.score-info {
+  color: #909399;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.matrix-result {
+  margin-top: 15px;
+  padding: 12px;
+  background: #e8f4fd;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #409eff;
+}
+
+.matrix-result .el-icon {
+  margin-right: 8px;
 }
 </style>

@@ -2,7 +2,8 @@ node_modules/
 dist/
 .env
 .env.local
-.env.production
+# 生产环境配置文件可以提交
+# .env.production
 *.log
 .DS_Store
 Thumbs.db

@@ -41,18 +41,16 @@ def create_app():
             db.session.commit()
     
     # 注册蓝图
-    from app.api.consultation import consultation_bp
     from app.api.diagnosis import diagnosis_bp
-    from app.api.prescription import prescription_bp
+    from app.api.prescription import wellness_bp
     from app.api.chat import chat_bp
     from app.api.doctor_consultation import doctor_consultation_bp
     from app.api.admin import admin_bp
     # from app.api.wechat import wechat_bp
     # from app.api.work_wechat import work_wechat_bp
     
-    app.register_blueprint(consultation_bp, url_prefix='/api/consultation')
     app.register_blueprint(diagnosis_bp, url_prefix='/api/diagnosis')
-    app.register_blueprint(prescription_bp, url_prefix='/api/prescription')
+    app.register_blueprint(wellness_bp, url_prefix='/api/wellness')
     app.register_blueprint(chat_bp, url_prefix='/api/chat')
     app.register_blueprint(doctor_consultation_bp, url_prefix='/api/doctor-consultation')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
@@ -67,13 +65,13 @@ def create_app():
             # 检查数据库连接
             from app.models.database_models import Doctor
             Doctor.query.count()
-            return {'status': 'ok', 'message': '失眠AI诊疗系统运行正常'}, 200
+            return {'status': 'ok', 'message': '失眠健康管理平台运行正常'}, 200
         except Exception as e:
             return {'status': 'error', 'message': str(e)}, 500
     
     @app.route('/')
     def index():
         """根路径"""
-        return {'message': '失眠AI诊疗系统API', 'status': 'running'}, 200
+        return {'message': '失眠健康管理平台API', 'status': 'running'}, 200
     
     return app

@@ -1,27 +1,27 @@
 from flask import Blueprint, request, jsonify
 
-prescription_bp = Blueprint('prescription', __name__)
+wellness_bp = Blueprint('wellness', __name__)
 
-@prescription_bp.route('/generate', methods=['POST'])
-def generate_prescription():
-    """根据证型生成治疗方案"""
+@wellness_bp.route('/generate', methods=['POST'])
+def generate_wellness_plan():
+    """根据体质类型生成调理建议"""
     try:
         data = request.get_json()
         
         if not data or 'syndrome_type' not in data:
             return jsonify({
                 'success': False,
-                'error': '请提供证型信息'
+                'error': '请提供体质类型信息'
             }), 400
         
-        syndrome_type = data['syndrome_type']
-        patient_info = data.get('patient_info', {})
+        constitution_type = data['syndrome_type']
+        user_info = data.get('user_info', {})
         
-        # TODO: 根据证型从知识库获取对应的治疗方案
-        treatment_plan = {
-            'syndrome_type': syndrome_type,
-            'herbal_prescription': {
-                'formula_name': '定志丸加减',
+        # TODO: 根据体质类型从知识库获取对应的调理建议
+        wellness_plan = {
+            'constitution_type': constitution_type,
+            'herbal_reference': {
+                'reference_name': '传统调理参考',
                 'ingredients': {
                     '人参': '10g',
                     '茯苓': '15g',
@@ -32,10 +32,10 @@ def generate_prescription():
                     '牡蛎': '15g'
                 },
                 'preparation': '水煎服',
-                'dosage': '每日一剂，分两次服用',
-                'duration': '14天为一疗程'
+                'reference_usage': '请咨询专业人员',
+                'note': '仅供参考，请咨询专业中医'
             },
-            'external_treatments': [
+            'wellness_methods': [
                 {
                     'method': '耳穴压豆',
                     'points': ['神门', '心', '肾', '皮质下'],
@@ -56,7 +56,7 @@ def generate_prescription():
                     'ingredients': ['百合30g', '莲子30g', '大米100g'],
                     'method': '先煮莲子至软，再加百合和大米煮粥',
                     'timing': '晚餐服用',
-                    'effects': '养心安神，润肺止咳'
+                    'note': '传统食疗参考，请咨询专业人员'
                 },
                 {
                     'name': '酸枣仁茶',
@@ -91,7 +91,7 @@ def generate_prescription():
             'error': str(e)
         }), 500
 
-@prescription_bp.route('/formulas', methods=['GET'])
+@wellness_bp.route('/formulas', methods=['GET'])
 def get_formulas():
     """获取方剂库"""
     try:
@@ -133,7 +133,7 @@ def get_formulas():
             'error': str(e)
         }), 500
 
-@prescription_bp.route('/external-treatments', methods=['GET'])
+@wellness_bp.route('/external-treatments', methods=['GET'])
 def get_external_treatments():
     """获取外治法库"""
     try:
@@ -175,7 +175,7 @@ def get_external_treatments():
             'error': str(e)
         }), 500
 
-@prescription_bp.route('/diet-therapy', methods=['GET'])
+@wellness_bp.route('/diet-therapy', methods=['GET'])
 def get_diet_therapy():
     """获取食疗方库"""
     try:

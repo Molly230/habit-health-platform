@@ -131,10 +131,41 @@
           </template>
         </el-result>
       </div>
+
+      <!-- 优秀睡眠质量结果 -->
+      <div v-else-if="showExcellentResult" class="excellent-result-section">
+        <el-result
+          icon="success"
+          title="🎉 恭喜您！"
+          sub-title="您的睡眠质量非常好！"
+          class="excellent-result"
+        >
+          <template #extra>
+            <div class="excellent-content">
+              <div class="score-display">
+                <div class="score-circle">
+                  <span class="score-number">96</span>
+                  <span class="score-text">/96分</span>
+                </div>
+                <div class="grade-badge">优秀</div>
+              </div>
+              <div class="congratulations-text">
+                <p>🌟 您拥有理想的睡眠质量</p>
+                <p>💪 请继续保持良好的睡眠习惯</p>
+                <p>😴 规律作息，健康生活</p>
+              </div>
+              <el-button type="primary" size="large" @click="router.push('/diagnosis')">
+                查看详细报告
+                <el-icon><Right /></el-icon>
+              </el-button>
+            </div>
+          </template>
+        </el-result>
+      </div>
     </el-card>
 
     <!-- 答题进度 -->
-    <el-card class="answer-summary" shadow="hover" v-if="!isLoading && !isCompleted">
+    <el-card class="answer-summary" shadow="hover" v-if="!isLoading && !isCompleted && !showExcellentResult">
       <template #header>
         <div class="summary-header">
           <el-icon><List /></el-icon>
@@ -175,6 +206,7 @@ const router = useRouter()
 const isLoading = ref(true)
 const isSubmitting = ref(false)
 const isCompleted = ref(false)
+const showExcellentResult = ref(false)
 const questions = ref([])
 const currentQuestionIndex = ref(0)
 const allAnswers = ref([])
@@ -216,6 +248,12 @@ const loadQuestions = async () => {
 
 const handleAnswerChange = (value) => {
   allAnswers.value[currentQuestionIndex.value] = [value]
+  
+  // 检查第1题是否选择了"好"
+  if (currentQuestionIndex.value === 0 && value === '好') {
+    // 第1题选择"好"，直接跳出并显示恭喜信息
+    showExcellentSleepResult()
+  }
 }
 
 const handleMultipleAnswerChange = (values) => {
@@ -303,6 +341,46 @@ const submitAnswers = async () => {
 
 const viewResults = () => {
   router.push('/prescription')
+}
+
+const showExcellentSleepResult = () => {
+  // 创建优秀睡眠质量的结果数据
+  const excellentResult = {
+    sleep_quality: {
+      grade: '优',
+      total_score: 96,
+      max_possible_score: 96,
+      percentage: 100
+    },
+    syndrome_diagnosis: {
+      final_diagnosis: '睡眠质量优秀',
+      primary_syndrome: '健康',
+      secondary_syndrome: '良好',
+      confidence: 1.0,
+      dimension_analysis: {}
+    },
+    treatment_plan: {
+      treatment_type: '保持',
+      products: ['继续保持良好的睡眠习惯'],
+      instructions: '恭喜！您的睡眠质量非常好，请继续保持良好的睡眠习惯和生活作息。',
+      needs_professional: false
+    },
+    analysis_time: new Date().toISOString()
+  }
+  
+  // 保存结果到本地存储
+  localStorage.setItem('latestDiagnosis', JSON.stringify(excellentResult))
+  localStorage.setItem('latestDiagnosisTime', new Date().toISOString())
+  
+  // 显示优秀结果页面
+  showExcellentResult.value = true
+  
+  ElMessage.success('恭喜！您的睡眠质量非常好！')
+  
+  // 3秒后跳转到结果页面
+  setTimeout(() => {
+    router.push('/diagnosis')
+  }, 3000)
 }
 
 // 根据选项内容长度动态计算最佳列宽
@@ -411,13 +489,14 @@ onMounted(() => {
 }
 
 .option-col {
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 .radio-option,
 .checkbox-option {
   width: 100%;
-  padding: 12px 16px;
+  padding: 16px 20px;
+  margin: 8px 0;
   border: 1px solid #e4e7ed;
   border-radius: 8px;
   transition: all 0.3s;
@@ -542,5 +621,82 @@ onMounted(() => {
   .option-col {
     /* 平板端2列显示 */
   }
+}
+
+/* 优秀睡眠质量结果样式 */
+.excellent-result-section {
+  padding: 40px 20px;
+}
+
+.excellent-result {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  color: white;
+  padding: 40px;
+}
+
+.excellent-content {
+  text-align: center;
+}
+
+.score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 30px 0;
+}
+
+.score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.score-number {
+  font-size: 36px;
+  font-weight: bold;
+  color: #FFD700;
+}
+
+.score-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.grade-badge {
+  background: #FFD700;
+  color: #333;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.congratulations-text {
+  margin: 30px 0;
+  line-height: 1.8;
+}
+
+.congratulations-text p {
+  font-size: 16px;
+  margin: 10px 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.excellent-result :deep(.el-result__title) {
+  color: white !important;
+  font-size: 28px !important;
+}
+
+.excellent-result :deep(.el-result__subtitle) {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 18px !important;
 }
 </style>

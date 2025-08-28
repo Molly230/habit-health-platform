@@ -73,23 +73,36 @@ def create_test_data(db_path="insomnia_diagnosis.db"):
                 VALUES (?, ?, ?, ?)
             """, patient)
         
-        # 创建一个测试诊断记录
+        # 创建一个测试诊断记录（19题系统）
         sample_answers = '''[
             {"question_id": 1, "selected_options": ["较差"]},
             {"question_id": 2, "selected_options": ["60分钟以上"]},
             {"question_id": 3, "selected_options": ["5小时以下"]},
+            {"question_id": 4, "selected_options": ["4次及以上"]},
+            {"question_id": 5, "selected_options": ["60分钟以上"]},
+            {"question_id": 6, "selected_options": ["每天都有"]},
+            {"question_id": 7, "selected_options": ["反复清醒", "整夜做梦"]},
+            {"question_id": 8, "selected_options": ["苯二氮卓类：地西泮、劳拉西泮"]},
+            {"question_id": 9, "selected_options": ["1-3个月"]},
             {"question_id": 10, "selected_options": ["是"]},
-            {"question_id": 20, "selected_options": ["红舌少苔"]},
-            {"question_id": 21, "selected_options": ["细数脉"]}
+            {"question_id": 11, "selected_options": ["否"]},
+            {"question_id": 12, "selected_options": ["是"]},
+            {"question_id": 13, "selected_options": ["是"]},
+            {"question_id": 14, "selected_options": ["是"]},
+            {"question_id": 15, "selected_options": ["时有耳鸣", "腹胀/腹部不适"]},
+            {"question_id": 16, "selected_options": ["夜间憋醒/胸闷，心跳加速"]},
+            {"question_id": 17, "selected_options": ["面色暗黑，无精打采"]},
+            {"question_id": 18, "selected_options": ["腰酸无力", "身寒怕冷"]},
+            {"question_id": 19, "selected_options": ["好忘事，记忆力下降"]}
         ]'''
         
-        sample_treatment = '''{"sleep_grade": "差", "syndrome_type": "气血两虚", "treatment_type": "专业医疗", "products": ["专业医生咨询"]}'''
+        sample_treatment = '''{"sleep_grade": "差", "syndrome_type": "肝郁肾虚", "treatment_type": "重度调理", "products": ["舒肝解郁茶包", "坚果营养包", "穴位贴"]}'''
         
         cursor.execute("""
             INSERT OR IGNORE INTO diagnosis_records 
             (patient_id, session_id, questionnaire_answers, total_sleep_score, 
              sleep_quality_grade, final_diagnosis, treatment_plan) 
-            VALUES (1, 'test_session_001', ?, -25, '差', '气血两虚', ?)
+            VALUES (1, 'test_session_001', ?, 25, '差', '肝郁肾虚', ?)
         """, (sample_answers, sample_treatment))
         
         conn.commit()

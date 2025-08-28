@@ -1,6 +1,5 @@
 from typing import Dict, List
 from app.diagnosis.questionnaire import InsomniaQuestionnaire
-from app.models.diagnosis_models import QuestionnaireAnswer, PatientAnswers
 
 class TCMAIService:
     """健康管理智能助手服务"""

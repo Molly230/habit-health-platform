@@ -6,6 +6,9 @@ import Knowledge from '../views/Knowledge.vue'
 import Chat from '../views/Chat.vue'
 import DoctorConsultation from '../views/DoctorConsultation.vue'
 import Admin from '../views/Admin.vue'
+import Cart from '../views/Cart.vue'
+import Checkout from '../views/Checkout.vue'
+import OrderSuccess from '../views/OrderSuccess.vue'
 
 const routes = [
   {
@@ -42,6 +45,21 @@ const routes = [
     path: '/admin',
     name: 'Admin',
     component: Admin
+  },
+  {
+    path: '/cart',
+    name: 'Cart',
+    component: Cart
+  },
+  {
+    path: '/checkout',
+    name: 'Checkout',
+    component: Checkout
+  },
+  {
+    path: '/order-success',
+    name: 'OrderSuccess',
+    component: OrderSuccess
   }
 ]
 

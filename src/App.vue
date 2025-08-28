@@ -5,7 +5,7 @@
       <el-header class="app-header">
         <div class="logo">
           <el-icon><Tools /></el-icon>
-          <span>失眠智能诊疗系统</span>
+          <span>失眠健康管理平台</span>
         </div>
         <div class="nav-menu">
           <el-menu
@@ -14,9 +14,9 @@
             router
           >
             <el-menu-item index="/">首页</el-menu-item>
-            <el-menu-item index="/consultation">问诊咨询</el-menu-item>
-            <el-menu-item index="/prescription">处方建议</el-menu-item>
-            <el-menu-item index="/doctor-consultation">专业医生</el-menu-item>
+            <el-menu-item index="/consultation">健康评估</el-menu-item>
+            <el-menu-item index="/prescription">调理建议</el-menu-item>
+            <el-menu-item index="/doctor-consultation">专业咨询</el-menu-item>
             <el-menu-item index="/knowledge">知识库</el-menu-item>
             <el-menu-item index="/chat">智能助手</el-menu-item>
             <el-menu-item index="/admin">管理后台</el-menu-item>
@@ -32,8 +32,8 @@
       <!-- 底部信息 -->
       <el-footer class="app-footer">
         <div>
-          <p>© 2024 中医失眠智能诊疗系统 - 仅供参考，不能替代专业医生诊断</p>
-          <p>如有严重症状请及时就医</p>
+          <p>© 2024 失眠健康管理平台 - 仅提供健康信息参考，不构成医疗建议</p>
+          <p>身体不适请咨询专业医生，本平台不承担任何医疗责任</p>
         </div>
       </el-footer>
     </el-container>

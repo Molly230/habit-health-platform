@@ -5,15 +5,15 @@
       <div class="header-content">
         <el-icon size="32" color="#409EFF"><Avatar /></el-icon>
         <div class="header-text">
-          <h1>专业医生咨询</h1>
-          <p>与资深中医师一对一咨询，获得专业的诊疗建议</p>
+          <h1>专业健康咨询</h1>
+          <p>与资深健康管理师一对一咨询，获得专业的调理建议</p>
         </div>
       </div>
     </div>
 
     <!-- 医生介绍区域 -->
     <div class="doctors-section">
-      <h2>在线专家团队</h2>
+      <h2>在线健康顾问团队</h2>
       <el-row :gutter="20" justify="center">
         <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="doctor in doctors" :key="doctor.id" class="doctor-col">
           <el-card class="doctor-card" shadow="hover">
@@ -63,17 +63,17 @@
             <el-icon><UserFilled /></el-icon>
           </template>
         </el-step>
-        <el-step title="提交病情" description="描述症状和诊断结果">
+        <el-step title="提交情况" description="描述症状和评估结果">
           <template #icon>
             <el-icon><Edit /></el-icon>
           </template>
         </el-step>
-        <el-step title="医生诊断" description="专业医生分析病情">
+        <el-step title="专业分析" description="健康顾问分析情况">
           <template #icon>
             <el-icon><View /></el-icon>
           </template>
         </el-step>
-        <el-step title="获得方案" description="获得个性化治疗方案">
+        <el-step title="获得方案" description="获得个性化调理方案">
           <template #icon>
             <el-icon><Document /></el-icon>
           </template>
@@ -142,7 +142,7 @@
             />
           </el-form-item>
           
-          <el-form-item label="诊断结果" v-if="diagnosisData">
+          <el-form-item label="评估结果" v-if="diagnosisData">
             <div class="diagnosis-summary">
               <el-tag type="info">睡眠质量：{{ diagnosisData.sleep_grade || '未评估' }}</el-tag>
               <el-tag type="warning" style="margin-left: 8px">
@@ -150,7 +150,7 @@
               </el-tag>
             </div>
             <el-checkbox v-model="consultationForm.includeDiagnosis">
-              将我的问卷诊断结果一并发送给医生
+              将我的问卷评估结果一并发送给健康顾问
             </el-checkbox>
           </el-form-item>
         </el-form>
@@ -183,7 +183,7 @@
             v-model="newMessage"
             type="textarea"
             :rows="3"
-            placeholder="向医生描述您的问题..."
+            placeholder="向健康顾问描述您的问题..."
             @keydown.ctrl.enter="sendMessage"
           />
           <div class="chat-actions">
@@ -215,9 +215,9 @@
       >
         <template #default>
           <ul class="notice-list">
-            <li>本平台医生均为有资质的执业中医师</li>
-            <li>咨询内容仅供参考，不能替代线下面诊</li>
-            <li>严重或急性症状请及时到医院就诊</li>
+            <li>本平台顾问均为专业健康管理师，仅提供健康调理建议</li>
+            <li>咨询内容仅供健康参考，不构成医疗建议</li>
+            <li>身体不适请及时到正规医疗机构就诊</li>
             <li>咨询费用支付后不可退款，请慎重选择</li>
             <li>咨询记录将严格保密，仅医患双方可见</li>
           </ul>
@@ -361,7 +361,7 @@ const submitConsultation = async () => {
       id: Date.now(),
       sender: 'doctor',
       senderName: selectedDoctor.value.name,
-      content: `您好 ${consultationForm.patientName}，我是${selectedDoctor.value.name}。我已经收到您的咨询申请和症状描述，现在开始为您分析病情。请问您还有什么需要补充的症状吗？`,
+      content: `您好 ${consultationForm.patientName}，我是${selectedDoctor.value.name}。我已经收到您的咨询申请和症状描述，现在开始为您分析情况。请问您还有什么需要补充的症状吗？`,
       timestamp: new Date(),
       avatar: selectedDoctor.value.avatar
     }
@@ -373,7 +373,7 @@ const submitConsultation = async () => {
         id: Date.now() + 1,
         sender: 'system',
         senderName: '系统',
-        content: `患者的问卷诊断结果：<br>睡眠质量等级：${diagnosisData.value.sleep_grade}<br>中医证型：${diagnosisData.value.syndrome_type}`,
+        content: `用户的问卷评估结果：<br>睡眠质量等级：${diagnosisData.value.sleep_grade}<br>体质类型：${diagnosisData.value.syndrome_type}`,
         timestamp: new Date(),
         avatar: '/system.png'
       }
@@ -432,10 +432,10 @@ const sendMessage = () => {
 // 生成医生回复（模拟智能回复）
 const generateDoctorReply = (userInput) => {
   const replies = [
-    '根据您描述的症状，这属于中医"不寐"范畴。建议您注意作息规律，避免睡前过度用脑。我推荐您试试按摩神门穴和三阴交穴。',
-    '您的情况看起来是肝气郁滞导致的失眠。建议平时多做深呼吸，保持心情舒畅。可以考虑服用一些疏肝解郁的中药。',
-    '失眠时间较长需要综合调理。除了药物治疗，生活调理也很重要。建议您每天固定时间入睡，睡前2小时避免剧烈运动。',
-    '从中医角度看，您这是心肾不交的表现。建议您可以尝试食疗，如百合莲子汤、酸枣仁茶等。同时要注意情志调节。'
+    '根据您描述的症状，建议您注意作息规律，避免睡前过度用脑。我推荐您试试按摩神门穴和三阴交穴。',
+    '您的情况可能是压力导致的失眠。建议平时多做深呼吸，保持心情舒畅。可以考虑一些舒缓的调理方法。',
+    '失眠时间较长需要综合调理。生活调理很重要，建议您每天固定时间入睡，睡前2小时避免剧烈运动。',
+    '从调理角度看，建议您可以尝试食疗，如百合莲子汤、酸枣仁茶等。同时要注意情志调节。'
   ]
   return replies[Math.floor(Math.random() * replies.length)]
 }

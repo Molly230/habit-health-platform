@@ -18,7 +18,7 @@
           <div class="feature-content">
             <el-icon class="feature-icon"><ChatRound /></el-icon>
             <h3>智能评估</h3>
-            <p>19项专业问题，全面了解您的睡眠状况</p>
+            <p>19项专业问题，了解您的睡眠习惯</p>
           </div>
         </el-card>
       </el-col>
@@ -28,7 +28,7 @@
           <div class="feature-content">
             <el-icon class="feature-icon"><TrendCharts /></el-icon>
             <h3>体质分析</h3>
-            <p>独创体质分析系统，精准定位体质类型</p>
+            <p>体质分析系统，参考分析体质类型</p>
           </div>
         </el-card>
       </el-col>
@@ -38,7 +38,7 @@
           <div class="feature-content">
             <el-icon class="feature-icon"><Setting /></el-icon>
             <h3>个性化建议</h3>
-            <p>保健产品、兿生方法、食疗三位一体</p>
+            <p>保健产品、养生方法、食疗参考建议</p>
           </div>
         </el-card>
       </el-col>
@@ -58,22 +58,22 @@
     <el-card class="process-section" shadow="hover">
       <h2>使用流程</h2>
       <el-steps :active="0" align-center>
-        <el-step title="问诊咨询" description="完成19项问诊问题">
+        <el-step title="健康咨询" description="完成19项健康问题">
           <template #icon>
             <el-icon><Edit /></el-icon>
           </template>
         </el-step>
-        <el-step title="智能分析" description="二元诊断系统分析">
+        <el-step title="智能分析" description="系统分析评估">
           <template #icon>
             <el-icon><Cpu /></el-icon>
           </template>
         </el-step>
-        <el-step title="证型判定" description="确定最终证型">
+        <el-step title="体质分析" description="分析体质类型">
           <template #icon>
             <el-icon><Check /></el-icon>
           </template>
         </el-step>
-        <el-step title="治疗方案" description="获得个性化建议">
+        <el-step title="调理建议" description="获得个性化建议">
           <template #icon>
             <el-icon><Tickets /></el-icon>
           </template>
@@ -90,7 +90,7 @@
         class="start-button"
       >
         <el-icon><Right /></el-icon>
-        开始问诊
+        开始咨询
       </el-button>
     </div>
 
@@ -102,7 +102,7 @@
       show-icon
     >
       <template #default>
-        <p>本系统仅供参考，不能替代专业医生的诊断和治疗。如有严重失眠症状或其他健康问题，请及时就医。</p>
+        <p>本平台仅提供健康信息参考，不构成医疗建议。如有身体不适或健康问题，请咨询专业医生。</p>
       </template>
     </el-alert>
   </div>

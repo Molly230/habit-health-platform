@@ -36,7 +36,7 @@ class Patient(db.Model):
         }
 
 class DiagnosisRecord(db.Model):
-    """问卷诊断记录表"""
+    """问卷评估记录表"""
     __tablename__ = 'diagnosis_records'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -51,15 +51,15 @@ class DiagnosisRecord(db.Model):
     sleep_quality_grade = db.Column(db.String(10))  # 优/良/中/差
     sleep_score_percentage = db.Column(db.Float)
     
-    # 证型诊断结果
+    # 体质评估结果
     syndrome_scores = db.Column(db.Text)  # JSON字符串
     final_diagnosis = db.Column(db.String(50))
     binary_diagnosis_details = db.Column(db.Text)  # JSON字符串
     
-    # 治疗方案
+    # 调理建议
     treatment_plan = db.Column(db.Text)  # JSON字符串
     
-    # 诊断时间
+    # 评估时间
     diagnosed_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # 关联关系

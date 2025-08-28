@@ -6,7 +6,12 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(rm:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(python:*)",
+      "Bash(git log:*)",
+      "Bash(deploy.bat)",
+      "Bash(cmd.exe /c deploy.bat)",
+      "Bash(start deploy.bat)"
     ],
     "deny": [],
     "ask": []
