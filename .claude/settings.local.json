@@ -23,7 +23,11 @@
       "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)",
       "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)",
       "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)",
-      "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)"
+      "Read(C:\\Users\\administered\\.claude\\projects\\F--360MoveData-Users-administered-Desktop-588/**)",
+      "Bash(npm run build:*)",
+      "WebFetch(domain:habit.tcmlife.top)",
+      "WebFetch(domain:habit-tcm.oss-cn-hangzhou.aliyuncs.com)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

@@ -24,210 +24,208 @@
       </div>
 
       <div v-else class="result-content">
-        <el-steps :active="3" finish-status="success" align-center class="result-steps">
-          <el-step title="健康评估" description="已完成18项问题" />
-          <el-step title="数据分析" description="体质分析系统分析" />
-          <el-step title="体质类型" description="确定最终体质类型" />
-          <el-step title="健康建议" description="生成个性化建议" />
-        </el-steps>
-
-        <!-- 睡眠质量评估 -->
-        <div class="sleep-quality-section">
-          <h2>😴 睡眠质量评估</h2>
+        <!-- 评估结果 -->
+        <div class="assessment-section">
           <el-row :gutter="20">
             <el-col :xs="24" :sm="12">
-              <el-card class="score-card" shadow="never">
-                <div class="score-display">
-                  <div class="score-number">{{ displayData?.sleepScore || 0 }}</div>
-                  <div class="score-total">/ {{ displayData?.maxScore || 96 }}分</div>
+              <el-card class="assessment-card sleep-card" shadow="never">
+                <div class="card-header">
+                  <h3>😴 睡眠质量评估</h3>
                 </div>
-                <el-tag 
-                  :type="getSleepGradeType(displayData?.sleepGrade)" 
-                  size="large" 
-                  class="grade-tag"
-                >
-                  {{ displayData?.sleepGrade || '未评估' }}
-                </el-tag>
+                <div class="card-content">
+                  <!-- 等级显示 -->
+                  <div class="grade-display">
+                    <div class="grade-value" :class="'grade-' + (displayData?.sleepGrade || 'unknown')">
+                      {{ displayData?.sleepGrade || '未评估' }}
+                    </div>
+                  </div>
+                  
+                  <!-- 评分显示 -->
+                  <div class="score-display">
+                    <div class="score-number">{{ displayData?.sleepScore || 0 }}</div>
+                    <div class="score-total">/ {{ displayData?.maxScore || 96 }}分</div>
+                  </div>
+                </div>
               </el-card>
             </el-col>
             <el-col :xs="24" :sm="12">
-              <el-progress 
-                type="dashboard" 
-                :percentage="displayData?.scorePercentage || 0" 
-                :color="getScoreColor(displayData?.sleepScore || 0)"
-                :width="120"
-              >
-                <template #default>
-                  <span class="percentage-text">{{ displayData?.scorePercentage || 0 }}%</span>
-                </template>
-              </el-progress>
+              <el-card class="assessment-card syndrome-card" shadow="never">
+                <div class="card-header">
+                  <h3>🔍 体质类型分析</h3>
+                </div>
+                <div class="card-content">
+                  <div class="syndrome-display">
+                    <div class="syndrome-value">
+                      {{ displayData?.syndromeDiagnosis || '未确定证型' }}
+                    </div>
+                    <div class="confidence-info">
+                      匹配度：{{ Math.round((displayData?.confidence || 0) * 100) }}%
+                    </div>
+                  </div>
+                </div>
+              </el-card>
             </el-col>
           </el-row>
         </div>
 
-        <!-- 体质分析结果 -->
-        <div class="diagnosis-result">
-          <h2>🔍 体质类型参考分析</h2>
-          <el-descriptions :column="2" border>
-            <el-descriptions-item label="体质类型">
-              <el-tag type="primary" size="large">{{ displayData?.syndromeDiagnosis }}</el-tag>
-            </el-descriptions-item>
-            <el-descriptions-item label="匹配度">
-              <el-progress :percentage="(displayData?.confidence || 0) * 100" :color="getConfidenceColor(displayData?.confidence || 0)" />
-            </el-descriptions-item>
-            <el-descriptions-item label="主要特征">
-              <el-tag type="success">{{ displayData?.primarySyndrome }}</el-tag>
-            </el-descriptions-item>
-            <el-descriptions-item label="次要特征">
-              <el-tag type="info">{{ displayData?.secondarySyndrome }}</el-tag>
-            </el-descriptions-item>
-          </el-descriptions>
-          
-          <!-- 二元诊断详情 -->
-          <div v-if="displayData?.binaryDiagnosis" class="binary-diagnosis-info">
-            <h4>🔬 二元诊断详情</h4>
-            <el-row :gutter="20">
-              <el-col :span="12">
-                <div class="diagnosis-dimension">
-                  <span class="dimension-label">行维度：</span>
-                  <el-tag type="primary">{{ displayData.binaryDiagnosis.rowDimension }}</el-tag>
-                  <span class="score-info">(得分: {{ displayData.binaryDiagnosis.rowScore }})</span>
-                </div>
-              </el-col>
-              <el-col :span="12">
-                <div class="diagnosis-dimension">
-                  <span class="dimension-label">列维度：</span>
-                  <el-tag type="success">{{ displayData.binaryDiagnosis.columnDimension }}</el-tag>
-                  <span class="score-info">(得分: {{ displayData.binaryDiagnosis.columnScore }})</span>
-                </div>
-              </el-col>
-            </el-row>
-            <div class="matrix-result">
-              <el-icon><Connection /></el-icon>
-              <span>{{ displayData.binaryDiagnosis.rowDimension }} × {{ displayData.binaryDiagnosis.columnDimension }} = {{ displayData?.syndromeDiagnosis }}</span>
-            </div>
-          </div>
-          
-          <!-- 维度分析 -->
-          <div v-if="displayData?.dimensions" class="dimension-analysis">
-            <h4>各维度得分分析</h4>
-            <el-row :gutter="15">
-              <el-col :xs="8" :sm="4" v-for="(score, dimension) in displayData.dimensions" :key="dimension">
-                <div class="dimension-item">
-                  <div class="dimension-name">{{ dimension }}</div>
-                  <el-progress 
-                    type="circle" 
-                    :percentage="Math.abs(score) / 16 * 100" 
-                    :width="60"
-                    :color="score >= 0 ? '#67c23a' : '#f56c6c'"
-                  >
-                    <template #default>
-                      <span :class="{ 'negative-score': score < 0 }">{{ score }}</span>
-                    </template>
-                  </el-progress>
-                </div>
-              </el-col>
-            </el-row>
-          </div>
-        </div>
+        <!-- 肝郁肾虚解释 -->
+        <div class="syndrome-explanation">
+          <h2>📋 {{ displayData?.syndromeDiagnosis || '体质类型' }}详解</h2>
+          <el-card class="explanation-card" shadow="never">
+            <div class="explanation-content">
+              <div class="explanation-section">
+                <h4>🔸 体质特点</h4>
+                <p>肝郁肾虚是中医常见的体质类型，主要表现为肝气郁结、肾精不足。肝主疏泄，肾主藏精，两脏功能失调容易导致睡眠障碍、情绪波动等症状。</p>
+              </div>
+              
+              <div class="explanation-section">
+                <h4>🔸 主要症状</h4>
+                <el-row :gutter="16">
+                  <el-col :span="12">
+                    <ul class="symptom-list">
+                      <li>入睡困难，多梦易醒</li>
+                      <li>情绪烦躁，压力大</li>
+                      <li>腰膝酸软，疲劳乏力</li>
+                    </ul>
+                  </el-col>
+                  <el-col :span="12">
+                    <ul class="symptom-list">
+                      <li>记忆力下降，注意力不集中</li>
+                      <li>夜尿频繁，手脚发凉</li>
+                      <li>消化不良，胃胀腹胀</li>
+                    </ul>
+                  </el-col>
+                </el-row>
+              </div>
+              
+              <div class="explanation-section">
+                <h4>🔸 调理建议</h4>
+                <p>建议从疏肝解郁、补肾填精两方面入手。保持心情舒畅，规律作息，适度运动。</p>
+              </div>
+              
+              <!-- 推荐产品和购物车 -->
+              <div v-if="displayData?.recommendedProducts?.length > 0" class="explanation-section">
+                <h4>🔸 推荐产品</h4>
+                
+                <el-row :gutter="20" class="product-shopping-section">
+                  <!-- 左侧产品区域 (2/3) -->
+                  <el-col :span="16">
+                    <el-row :gutter="16">
+                      <el-col 
+                        :xs="24" :sm="12" :lg="8" 
+                        v-for="product in displayData.recommendedProducts" 
+                        :key="product.id"
+                        class="product-col"
+                      >
+                        <el-card class="product-card" shadow="hover">
+                          <div class="product-header">
+                            <div class="product-icon">{{ getProductIcon(product.name) }}</div>
+                            <div class="product-badge" v-if="product.sales > 200">
+                              <el-tag type="danger" size="small">热销</el-tag>
+                            </div>
+                          </div>
+                          
+                          <h4>{{ product.name }}</h4>
+                          <p class="product-description">{{ product.description }}</p>
+                          
+                          <div class="product-details">
+                            <div class="product-price">
+                              <span class="current-price">¥{{ product.price }}</span>
+                              <span class="original-price" v-if="product.originalPrice > product.price">
+                                ¥{{ product.originalPrice }}
+                              </span>
+                            </div>
+                            
+                            <div class="product-rating">
+                              <span class="rating-text">{{ product.rating }}分</span>
+                              <span class="sales-text">已售{{ product.sales }}件</span>
+                            </div>
+                          </div>
 
-        <!-- 健康建议预览 -->
-        <div class="treatment-preview">
-          <h3>💊 个性化调理建议</h3>
-          
-          <el-alert 
-            v-if="displayData?.needsProfessional"
-            title="建议咨询专业健康管理师"
-            type="warning"
-            :closable="false"
-            show-icon
-            class="professional-alert"
-          >
-            根据您的症状评估结果，建议咨询专业健康管理师制定详细调理方案。
-          </el-alert>
-          
-          <div class="treatment-type-info">
-            <el-tag type="primary" size="large">
-              建议类型：{{ displayData?.treatmentType }}
-            </el-tag>
-          </div>
-          
-          <div v-if="displayData?.recommendedProducts?.length > 0" class="product-preview">
-            <h4>推荐产品</h4>
-            
-            <!-- 组合优惠信息 -->
-            <div v-if="displayData?.comboOffer" class="combo-offer">
-              <el-alert type="success" :closable="false">
-                <template #title>
-                  🎁 组合优惠：立省 ¥{{ displayData.comboOffer.savings }} 元（{{ displayData.comboOffer.discount }}% OFF）
-                </template>
-                原价：¥{{ displayData.comboOffer.totalPrice }} | 优惠价：¥{{ displayData.comboOffer.comboPrice }}
-              </el-alert>
-            </div>
-
-            <el-row :gutter="20">
-              <el-col 
-                :xs="24" :sm="12" :md="8" 
-                v-for="product in displayData.recommendedProducts" 
-                :key="product.id"
-              >
-                <el-card class="product-card" shadow="hover">
-                  <div class="product-header">
-                    <div class="product-icon">{{ getProductIcon(product.name) }}</div>
-                    <div class="product-badge" v-if="product.sales > 200">
-                      <el-tag type="danger" size="small">热销</el-tag>
-                    </div>
-                  </div>
+                          <div class="product-actions">
+                            <el-button 
+                              type="primary" 
+                              size="small" 
+                              @click="addToCart(product)"
+                              :disabled="product.stock === 0"
+                              block
+                            >
+                              {{ product.stock > 0 ? '加入购物车' : '暂时缺货' }}
+                            </el-button>
+                          </div>
+                        </el-card>
+                      </el-col>
+                    </el-row>
+                  </el-col>
                   
-                  <h4>{{ product.name }}</h4>
-                  <p class="product-description">{{ product.description }}</p>
-                  
-                  <div class="product-details">
-                    <div class="product-price">
-                      <span class="current-price">¥{{ product.price }}</span>
-                      <span class="original-price" v-if="product.originalPrice > product.price">
-                        ¥{{ product.originalPrice }}
-                      </span>
-                    </div>
-                    
-                    <div class="product-rating">
-                      <span class="rating-text">{{ product.rating }}分</span>
-                      <span class="sales-text">已售{{ product.sales }}件</span>
-                    </div>
-                  </div>
-
-                  <div class="product-actions">
-                    <el-button 
-                      type="primary" 
-                      size="small" 
-                      @click="addToCart(product)"
-                      :disabled="product.stock === 0"
-                    >
-                      {{ product.stock > 0 ? '加入购物车' : '暂时缺货' }}
-                    </el-button>
-                    <el-button 
-                      size="small" 
-                      @click="viewProductDetails(product)"
-                    >
-                      查看详情
-                    </el-button>
-                  </div>
-                </el-card>
-              </el-col>
-            </el-row>
-            
-            <!-- 一键购买组合 -->
-            <div v-if="displayData?.comboOffer" class="combo-purchase">
-              <el-button 
-                type="primary" 
-                size="large" 
-                @click="purchaseCombo"
-                class="combo-buy-btn"
-              >
-                🛒 一键购买组合套餐 - 仅需 ¥{{ displayData.comboOffer.comboPrice }}
-              </el-button>
+                  <!-- 右侧购物车区域 (1/3) -->
+                  <el-col :span="8">
+                    <el-card class="cart-card" shadow="always">
+                      <div class="cart-header">
+                        <h4>🛒 购物车</h4>
+                        <el-badge :value="cartItemCount" class="cart-badge">
+                          <el-button size="small" @click="goToCart" text>
+                            查看全部
+                          </el-button>
+                        </el-badge>
+                      </div>
+                      
+                      <div class="cart-content">
+                        <div v-if="cart.length === 0" class="empty-cart">
+                          <el-empty :image-size="80" description="购物车空空如也">
+                            <el-button type="primary" size="small" @click="addAllToCart">
+                              一键添加推荐商品
+                            </el-button>
+                          </el-empty>
+                        </div>
+                        
+                        <div v-else class="cart-items">
+                          <div v-for="item in cart.slice(0, 3)" :key="item.id" class="cart-item">
+                            <div class="item-info">
+                              <div class="item-name">{{ item.name }}</div>
+                              <div class="item-price">¥{{ item.price }} × {{ item.quantity }}</div>
+                            </div>
+                            <div class="item-actions">
+                              <el-button size="small" @click="removeFromCart(item)" text type="danger">
+                                删除
+                              </el-button>
+                            </div>
+                          </div>
+                          
+                          <div v-if="cart.length > 3" class="more-items">
+                            还有 {{ cart.length - 3 }} 个商品...
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="cart-footer" v-if="cart.length > 0">
+                        <!-- 优惠信息 -->
+                        <div v-if="hasDiscount" class="discount-info">
+                          <el-alert type="success" :closable="false" size="small">
+                            <template #title>
+                              🎉 2件以上享8.8折优惠
+                            </template>
+                          </el-alert>
+                          <div class="price-breakdown">
+                            <div class="original-price">原价：¥{{ originalTotalPrice }}</div>
+                            <div class="discount-amount">优惠：-¥{{ discountAmount }}</div>
+                          </div>
+                        </div>
+                        
+                        <div class="total-price">
+                          <span v-if="hasDiscount" class="discount-label">优惠后：</span>
+                          ¥{{ totalPrice }}
+                        </div>
+                        <el-button type="primary" size="large" @click="goToCheckout" block>
+                          立即结算 ({{ cartItemCount }})
+                        </el-button>
+                      </div>
+                    </el-card>
+                  </el-col>
+                </el-row>
+              </div>
             </div>
-          </div>
+          </el-card>
         </div>
 
         <div class="action-buttons">
@@ -262,7 +260,10 @@ const router = useRouter()
 const diagnosisData = ref(null)
 
 const hasResult = computed(() => {
-  return diagnosisData.value !== null
+  console.log('hasResult检查:', diagnosisData.value)
+  // 检查是否有真实的localStorage数据
+  const storedDiagnosis = localStorage.getItem('latestDiagnosis')
+  return storedDiagnosis !== null && diagnosisData.value !== null && diagnosisData.value !== undefined
 })
 
 // 从诊断数据中提取显示信息
@@ -336,26 +337,37 @@ const displayData = computed(() => {
 const loadDiagnosisData = async () => {
   try {
     const storedDiagnosis = localStorage.getItem('latestDiagnosis')
+    console.log('存储的诊断数据:', storedDiagnosis) // 调试日志
+    
     if (storedDiagnosis) {
-      diagnosisData.value = JSON.parse(storedDiagnosis)
+      const parsedData = JSON.parse(storedDiagnosis)
+      console.log('解析后的诊断数据:', parsedData) // 调试日志
+      diagnosisData.value = parsedData
       
       // 同时保存到数据库（如果还没保存过）
       const hasBeenSaved = localStorage.getItem('latestDiagnosisSaved')
       if (!hasBeenSaved) {
         const storedAnswers = localStorage.getItem('latestAnswers')
         if (storedAnswers) {
-          const { saveDiagnosisResult } = await import('../api/consultation.js')
-          const answers = JSON.parse(storedAnswers)
-          const saveResult = await saveDiagnosisResult(answers, diagnosisData.value)
-          if (saveResult.success) {
-            localStorage.setItem('latestDiagnosisSaved', 'true')
-            console.log('诊断结果已保存到数据库')
+          try {
+            const { saveDiagnosisResult } = await import('../api/consultation.js')
+            const answers = JSON.parse(storedAnswers)
+            const saveResult = await saveDiagnosisResult(answers, diagnosisData.value)
+            if (saveResult.success) {
+              localStorage.setItem('latestDiagnosisSaved', 'true')
+              console.log('诊断结果已保存到数据库')
+            }
+          } catch (saveError) {
+            console.warn('保存到数据库失败，但不影响显示:', saveError)
           }
         }
       }
+    } else {
+      console.log('没有找到诊断数据')
+      diagnosisData.value = null
     }
   } catch (error) {
-    console.warn('加载或保存诊断数据失败:', error)
+    console.error('加载诊断数据失败:', error)
   }
 }
 
@@ -424,6 +436,37 @@ const consultWithDoctor = () => {
 // 购物车功能
 const cart = ref([])
 
+// 购物车计算属性
+const cartItemCount = computed(() => {
+  return cart.value.reduce((total, item) => total + item.quantity, 0)
+})
+
+const totalPrice = computed(() => {
+  const originalTotal = cart.value.reduce((total, item) => total + (item.price * item.quantity), 0)
+  
+  // 2个以上产品打8.8折
+  if (cartItemCount.value >= 2) {
+    return Math.round(originalTotal * 0.88)
+  }
+  
+  return originalTotal
+})
+
+const originalTotalPrice = computed(() => {
+  return cart.value.reduce((total, item) => total + (item.price * item.quantity), 0)
+})
+
+const hasDiscount = computed(() => {
+  return cartItemCount.value >= 2
+})
+
+const discountAmount = computed(() => {
+  if (hasDiscount.value) {
+    return originalTotalPrice.value - totalPrice.value
+  }
+  return 0
+})
+
 const addToCart = (product) => {
   // 检查购物车中是否已有该产品
   const existingItem = cart.value.find(item => item.id === product.id)
@@ -452,10 +495,10 @@ const viewProductDetails = (product) => {
   router.push(`/product/${product.id}`)
 }
 
-const purchaseCombo = () => {
+// 一键添加所有推荐商品
+const addAllToCart = () => {
   if (!displayData.value?.recommendedProducts) return
   
-  // 将所有推荐产品加入购物车
   displayData.value.recommendedProducts.forEach(product => {
     const existingItem = cart.value.find(item => item.id === product.id)
     if (!existingItem) {
@@ -466,19 +509,54 @@ const purchaseCombo = () => {
     }
   })
   
-  // 标记为组合购买，享受优惠价格
-  const comboInfo = displayData.value.comboOffer
   localStorage.setItem('cart', JSON.stringify(cart.value))
-  localStorage.setItem('comboOffer', JSON.stringify(comboInfo))
   
   ElMessage({
-    message: `组合套餐已加入购物车，享受优惠价 ¥${comboInfo.comboPrice}`,
+    message: `已添加${displayData.value.recommendedProducts.length}个推荐商品到购物车`,
     type: 'success',
-    duration: 3000
+    duration: 2000
   })
-  
-  // 跳转到购物车页面
+}
+
+// 从购物车移除商品
+const removeFromCart = (item) => {
+  const index = cart.value.findIndex(cartItem => cartItem.id === item.id)
+  if (index > -1) {
+    cart.value.splice(index, 1)
+    localStorage.setItem('cart', JSON.stringify(cart.value))
+    ElMessage({
+      message: `已移除 ${item.name}`,
+      type: 'info',
+      duration: 1500
+    })
+  }
+}
+
+// 跳转到购物车页面
+const goToCart = () => {
   router.push('/cart')
+}
+
+// 跳转到结算页面
+const goToCheckout = () => {
+  if (cart.value.length === 0) {
+    ElMessage.warning('购物车为空')
+    return
+  }
+  
+  // 准备结算数据，包含折扣信息
+  const checkoutData = {
+    items: cart.value,
+    subtotal: originalTotalPrice.value,
+    comboDiscount: hasDiscount.value ? discountAmount.value : 0,
+    finalTotal: totalPrice.value,
+    shipping: totalPrice.value >= 99 ? 0 : 10
+  }
+  
+  // 保存结算数据到localStorage
+  localStorage.setItem('checkoutData', JSON.stringify(checkoutData))
+  
+  router.push('/checkout')
 }
 
 // 页面加载时恢复购物车
@@ -493,9 +571,11 @@ const loadCart = () => {
   }
 }
 
-onMounted(() => {
-  loadDiagnosisData()
+onMounted(async () => {
+  console.log('诊断页面加载中...')
+  await loadDiagnosisData()
   loadCart()
+  console.log('诊断页面加载完成, diagnosisData:', diagnosisData.value)
 })
 </script>
 
@@ -683,40 +763,97 @@ onMounted(() => {
   margin: 0 10px;
 }
 
-.sleep-quality-section {
+.assessment-section {
   margin-bottom: 40px;
 }
 
-.sleep-quality-section h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.score-card {
-  text-align: center;
-  padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.assessment-card {
+  height: 220px;
+  background: linear-gradient(135deg, #409EFF 0%, #6bb6ff 100%);
   color: white;
   border-radius: 12px;
+  border: none;
+}
+
+.card-header {
+  text-align: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 20px;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.card-content {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 20px;
+}
+
+.grade-display {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.grade-label {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.grade-value {
+  font-size: 32px;
+  font-weight: bold;
+  padding: 12px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  line-height: 1;
+}
+
+.grade-value.grade-优 {
+  background: rgba(103, 194, 58, 0.3);
+  border: 2px solid #67c23a;
+}
+
+.grade-value.grade-良 {
+  background: rgba(64, 158, 255, 0.3);
+  border: 2px solid #409eff;
+}
+
+.grade-value.grade-中 {
+  background: rgba(230, 162, 60, 0.3);
+  border: 2px solid #e6a23c;
+}
+
+.grade-value.grade-差 {
+  background: rgba(245, 108, 108, 0.3);
+  border: 2px solid #f56c6c;
 }
 
 .score-display {
   display: flex;
   align-items: baseline;
   justify-content: center;
-  margin-bottom: 15px;
+  gap: 5px;
 }
 
 .score-number {
-  font-size: 48px;
+  font-size: 64px;
   font-weight: bold;
   line-height: 1;
 }
 
 .score-total {
-  font-size: 18px;
-  margin-left: 5px;
+  font-size: 24px;
+  margin-left: 8px;
   opacity: 0.8;
 }
 
@@ -725,10 +862,228 @@ onMounted(() => {
   padding: 8px 16px;
 }
 
-.percentage-text {
-  color: #606266;
-  font-size: 14px;
+.syndrome-display {
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.syndrome-value {
+  font-size: 26px;
   font-weight: bold;
+  margin-bottom: 15px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  line-height: 1;
+}
+
+.confidence-info {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* 肝郁肾虚解释样式 */
+.syndrome-explanation {
+  margin-bottom: 40px;
+}
+
+.syndrome-explanation h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.explanation-card {
+  border-radius: 12px;
+  border: 1px solid #e4e7ed;
+}
+
+.explanation-content {
+  padding: 20px;
+}
+
+.explanation-section {
+  margin-bottom: 25px;
+}
+
+.explanation-section h4 {
+  color: #409EFF;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.explanation-section p {
+  color: #606266;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.symptom-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.symptom-list li {
+  color: #606266;
+  line-height: 1.8;
+  margin-bottom: 5px;
+}
+
+.lifestyle-tag {
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+/* 产品购物车布局 */
+.product-shopping-section {
+  margin-top: 20px;
+}
+
+.product-col {
+  margin-bottom: 16px;
+}
+
+.product-card {
+  height: 100%;
+}
+
+.product-actions .el-button {
+  margin: 0;
+}
+
+/* 购物车样式 */
+.cart-card {
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  min-height: 400px;
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.cart-header h4 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.cart-badge {
+  margin-right: 8px;
+}
+
+.cart-content {
+  min-height: 250px;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.cart-items {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 14px;
+  color: #2c3e50;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.item-price {
+  font-size: 12px;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.item-actions {
+  margin-left: 8px;
+}
+
+.more-items {
+  text-align: center;
+  color: #909399;
+  font-size: 12px;
+  padding: 8px 0;
+}
+
+.cart-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e4e7ed;
+}
+
+.total-price {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #e74c3c;
+  margin-bottom: 12px;
+}
+
+/* 折扣信息样式 */
+.discount-info {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: #f0f9ff;
+  border-radius: 6px;
+  border-left: 3px solid #67c23a;
+  text-align: left;
+}
+
+.price-breakdown {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #606266;
+  margin-top: 8px;
+  padding: 4px 0;
+  border-top: 1px solid #e4e7ed;
+}
+
+.discount-label {
+  color: #67c23a;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.original-price-text {
+  text-decoration: line-through;
+  color: #909399;
+}
+
+.discount-amount {
+  color: #f56c6c;
+  font-weight: 500;
 }
 
 .dimension-analysis {

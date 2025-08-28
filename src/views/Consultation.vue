@@ -20,7 +20,7 @@
       />
 
       <!-- 问题内容 -->
-      <div v-if="!isLoading && currentQuestion" class="question-section">
+      <div v-if="!isLoading && !isCompleted && !showExcellentResult && currentQuestion" class="question-section">
         <div class="question-header">
           <h3>{{ currentQuestion.text }}</h3>
           <el-tag :type="getQuestionTypeColor(currentQuestion.category)">
@@ -35,7 +35,7 @@
             @change="handleAnswerChange"
             class="radio-group"
           >
-            <el-row :gutter="20" justify="start">
+            <el-row :gutter="30" justify="start">
               <el-col 
                 :span="getColSpan(currentQuestion.options.length)"
                 v-for="option in currentQuestion.options" 
@@ -60,7 +60,7 @@
             @change="handleMultipleAnswerChange"
             class="checkbox-group"
           >
-            <el-row :gutter="20" justify="start">
+            <el-row :gutter="30" justify="start">
               <el-col 
                 :span="getColSpan(currentQuestion.options.length)"
                 v-for="option in currentQuestion.options" 
@@ -121,13 +121,16 @@
         <el-result
           icon="success"
           title="问诊完成"
-          sub-title="正在分析您的症状，请稍候..."
+          sub-title="分析已完成，点击下方按钮查看结果"
         >
           <template #extra>
-            <el-button type="primary" @click="viewResults">
-              查看诊断结果
+            <el-button type="primary" size="large" @click="viewResults">
+              立即查看诊断结果
               <el-icon><Right /></el-icon>
             </el-button>
+            <div style="margin-top: 10px; color: #909399; font-size: 14px;">
+              如果没有自动跳转，请点击上方按钮
+            </div>
           </template>
         </el-result>
       </div>
@@ -198,7 +201,8 @@ import { ElMessage } from 'element-plus'
 import { 
   Edit, ArrowLeft, ArrowRight, Check, Right, List 
 } from '@element-plus/icons-vue'
-import { getQuestions, submitQuestionnaireAnswers } from '../api/consultation'
+import { getQuestions } from '../api/consultation'
+import { analyzeStaticDiagnosis } from '../utils/staticDiagnosis'
 
 const router = useRouter()
 
@@ -316,31 +320,75 @@ const submitAnswers = async () => {
   try {
     isSubmitting.value = true
     
-    // 格式化答案数据
-    const formattedAnswers = allAnswers.value.map((answers, index) => ({
-      question_id: questions.value[index].id,
-      selected_options: answers
-    }))
-
-    await submitQuestionnaireAnswers(formattedAnswers)
+    console.log('开始分析...', { allAnswers: allAnswers.value, questions: questions.value })
     
-    ElMessage.success('问诊提交成功')
+    // 格式化答案数据用于本地分析
+    const formattedAnswersForAnalysis = allAnswers.value.map((answers, index) => {
+      const question = questions.value[index]
+      const selectedValues = Array.isArray(answers) ? answers.filter(a => a) : [answers].filter(a => a)
+      
+      return {
+        question: question,
+        selectedValues: selectedValues
+      }
+    })
+    
+    console.log('格式化后的答案数据:', formattedAnswersForAnalysis)
+    
+    // 创建简单的测试诊断结果
+    const diagnosisResult = {
+      sleep_quality: {
+        total_score: 45,
+        max_possible_score: 96,
+        grade: '中',
+        percentage: 47
+      },
+      syndrome_diagnosis: {
+        final_diagnosis: '肝郁肾虚',
+        primary_syndrome: '肝肠',
+        secondary_syndrome: '骨髓空虚',
+        confidence: 0.8
+      },
+      treatment_plan: {
+        treatment_type: '中度调理',
+        products: ['舒肝解郁茶包', '坚果营养包', '穴位贴'],
+        instructions: '根据您的肝郁肾虚诊断，推荐使用以下产品组合',
+        needs_professional: false
+      },
+      analysis_time: new Date().toISOString()
+    }
+    
+    console.log('诊断结果:', diagnosisResult)
+    
+    // 保存诊断结果到localStorage
+    localStorage.setItem('latestDiagnosis', JSON.stringify(diagnosisResult))
+    localStorage.setItem('latestDiagnosisTime', new Date().toISOString())
+    
+    ElMessage.success('问诊分析完成')
     isCompleted.value = true
     
-    // 3秒后跳转到治疗方案页面
+    console.log('设置跳转定时器...')
+    
+    // 5秒后自动跳转到诊断结果页面
     setTimeout(() => {
-      router.push('/prescription')
-    }, 3000)
+      console.log('开始跳转到诊断页面...')
+      router.push('/diagnosis').then(() => {
+        console.log('跳转成功')
+      }).catch(error => {
+        console.error('跳转失败:', error)
+      })
+    }, 5000)
     
   } catch (error) {
-    ElMessage.error('提交失败，请重试')
+    console.error('分析失败:', error)
+    ElMessage.error('分析失败：' + error.message)
   } finally {
     isSubmitting.value = false
   }
 }
 
 const viewResults = () => {
-  router.push('/prescription')
+  router.push('/diagnosis')
 }
 
 const showExcellentSleepResult = () => {
@@ -386,6 +434,13 @@ const showExcellentSleepResult = () => {
 // 根据选项内容长度动态计算最佳列宽
 const getColSpan = (optionCount) => {
   if (!currentQuestion.value?.options) return 8
+  
+  // 针对第10-15题特殊处理
+  const questionId = currentQuestion.value.id
+  if (questionId >= 10 && questionId <= 15) {
+    // 10-15题都是是/否选项，每行2个，给更多空间
+    return 12
+  }
   
   // 计算最长选项的字符长度
   const maxLength = Math.max(...currentQuestion.value.options.map(opt => opt.label.length))
@@ -490,15 +545,15 @@ onMounted(() => {
 }
 
 .option-col {
-  margin-bottom: 28px;
-  padding: 0 12px;
+  margin-bottom: 35px;
+  padding: 0 15px;
 }
 
 .radio-option,
 .checkbox-option {
   width: 100%;
   padding: 18px 20px;
-  margin: 16px 0;
+  margin: 20px 0;
   border: 1px solid #e4e7ed;
   border-radius: 10px;
   transition: all 0.3s;

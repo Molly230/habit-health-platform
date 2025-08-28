@@ -3,7 +3,7 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <el-icon size="32" color="#409EFF"><Avatar /></el-icon>
+        <el-icon size="32" color="white"><Avatar /></el-icon>
         <div class="header-text">
           <h1>专业健康咨询</h1>
           <p>与资深健康管理师一对一咨询，获得专业的调理建议</p>
@@ -11,9 +11,21 @@
       </div>
     </div>
 
+    <!-- 返回按钮 -->
+    <div class="back-nav">
+      <el-button 
+        @click="goBack" 
+        class="back-button"
+        size="default"
+        plain
+      >
+        <el-icon><ArrowLeft /></el-icon>
+        返回上一页
+      </el-button>
+    </div>
+
     <!-- 医生介绍区域 -->
     <div class="doctors-section">
-      <h2>在线健康顾问团队</h2>
       <el-row :gutter="20" justify="center">
         <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="doctor in doctors" :key="doctor.id" class="doctor-col">
           <el-card class="doctor-card" shadow="hover">
@@ -58,7 +70,7 @@
     <div class="process-section">
       <h2>咨询流程</h2>
       <el-steps :active="4" finish-status="success" align-center>
-        <el-step title="选择医生" description="选择合适的专业医生">
+        <el-step title="选择健康顾问" description="选择合适的专业健康管理师">
           <template #icon>
             <el-icon><UserFilled /></el-icon>
           </template>
@@ -68,7 +80,7 @@
             <el-icon><Edit /></el-icon>
           </template>
         </el-step>
-        <el-step title="专业分析" description="健康顾问分析情况">
+        <el-step title="专业分析" description="健康管理师分析情况">
           <template #icon>
             <el-icon><View /></el-icon>
           </template>
@@ -84,7 +96,7 @@
     <!-- 咨询对话框 -->
     <el-dialog
       v-model="consultationDialogVisible"
-      :title="`咨询 ${selectedDoctor?.name}`"
+      :title="`咨询 ${selectedDoctor?.name} 健康管理师`"
       width="70%"
       :before-close="handleDialogClose"
     >
@@ -150,7 +162,7 @@
               </el-tag>
             </div>
             <el-checkbox v-model="consultationForm.includeDiagnosis">
-              将我的问卷评估结果一并发送给健康顾问
+              将我的问卷评估结果一并发送给健康管理师
             </el-checkbox>
           </el-form-item>
         </el-form>
@@ -183,7 +195,7 @@
             v-model="newMessage"
             type="textarea"
             :rows="3"
-            placeholder="向健康顾问描述您的问题..."
+            placeholder="向健康管理师描述您的问题..."
             @keydown.ctrl.enter="sendMessage"
           />
           <div class="chat-actions">
@@ -230,6 +242,7 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
 import { 
   Avatar, 
   Star, 
@@ -237,8 +250,12 @@ import {
   UserFilled,
   Edit,
   View,
-  Document
+  Document,
+  ArrowLeft
 } from '@element-plus/icons-vue'
+
+// 路由
+const router = useRouter()
 
 // 响应式数据
 const consultationDialogVisible = ref(false)
@@ -254,9 +271,9 @@ const diagnosisData = ref(null)
 const doctors = ref([
   {
     id: 1,
-    name: '李中医',
-    title: '主任医师',
-    specialty: '中医内科、失眠专科',
+    name: '李老师',
+    title: '高级健康管理师',
+    specialty: '中医调理、失眠专科',
     experience: 25,
     status: '在线',
     price: 50,
@@ -264,9 +281,9 @@ const doctors = ref([
   },
   {
     id: 2,
-    name: '王教授',
-    title: '副主任医师',
-    specialty: '中医神志病、睡眠障碍',
+    name: '王老师',
+    title: '资深健康管理师',
+    specialty: '中医养生、睡眠障碍',
     experience: 18,
     status: '在线',
     price: 80,
@@ -274,8 +291,8 @@ const doctors = ref([
   },
   {
     id: 3,
-    name: '张医师',
-    title: '主治医师',
+    name: '张老师',
+    title: '专业健康管理师',
     specialty: '中医养生、亚健康调理',
     experience: 12,
     status: '忙碌',
@@ -361,7 +378,7 @@ const submitConsultation = async () => {
       id: Date.now(),
       sender: 'doctor',
       senderName: selectedDoctor.value.name,
-      content: `您好 ${consultationForm.patientName}，我是${selectedDoctor.value.name}。我已经收到您的咨询申请和症状描述，现在开始为您分析情况。请问您还有什么需要补充的症状吗？`,
+      content: `您好 ${consultationForm.patientName}，我是${selectedDoctor.value.name}健康管理师。我已经收到您的咨询申请和症状描述，现在开始为您分析情况。请问您还有什么需要补充的症状吗？`,
       timestamp: new Date(),
       avatar: selectedDoctor.value.avatar
     }
@@ -380,7 +397,7 @@ const submitConsultation = async () => {
       consultationMessages.value.push(diagnosisMessage)
     }
     
-    ElMessage.success('咨询已开始，请耐心等待医生回复')
+    ElMessage.success('咨询已开始，请耐心等待健康管理师回复')
     
   } catch (error) {
     if (error === 'cancel') {
@@ -406,7 +423,7 @@ const sendMessage = () => {
   
   consultationMessages.value.push(userMessage)
   
-  // 模拟医生回复（实际应该通过WebSocket或轮询获取）
+  // 模拟健康管理师回复（实际应该通过WebSocket或轮询获取）
   setTimeout(() => {
     const doctorReply = generateDoctorReply(newMessage.value)
     const replyMessage = {
@@ -429,7 +446,7 @@ const sendMessage = () => {
   })
 }
 
-// 生成医生回复（模拟智能回复）
+// 生成健康管理师回复（模拟智能回复）
 const generateDoctorReply = (userInput) => {
   const replies = [
     '根据您描述的症状，建议您注意作息规律，避免睡前过度用脑。我推荐您试试按摩神门穴和三阴交穴。',
@@ -473,6 +490,11 @@ const formatMessage = (content) => {
   return content.replace(/\n/g, '<br>')
 }
 
+// 返回上一页
+const goBack = () => {
+  router.go(-1)
+}
+
 // 格式化时间
 const formatTime = (timestamp) => {
   return new Date(timestamp).toLocaleTimeString('zh-CN', {
@@ -501,6 +523,24 @@ const formatTime = (timestamp) => {
   display: flex;
   align-items: center;
   gap: 20px;
+}
+
+.back-nav {
+  margin: 20px 0;
+  padding-left: 20px;
+}
+
+.back-button {
+  color: #409EFF;
+  border: 1px solid #409EFF;
+  background: white;
+  transition: all 0.3s;
+}
+
+.back-button:hover {
+  background: #409EFF;
+  color: white;
+  transform: translateX(-2px);
 }
 
 .header-text h1 {

@@ -123,25 +123,44 @@ function calculateTotalScore(answers) {
   let totalScore = 0
   let maxScore = 0
   
-  answers.forEach(answer => {
-    if (Array.isArray(answer.selectedValues)) {
-      // 多选题
-      answer.selectedValues.forEach(value => {
-        const option = answer.question.options.find(opt => opt.value === value)
+  try {
+    answers.forEach(answer => {
+      if (!answer || !answer.question) {
+        console.warn('无效的答案数据:', answer)
+        return
+      }
+      
+      const selectedValues = answer.selectedValues || []
+      const question = answer.question
+      
+      if (!question.options || question.options.length === 0) {
+        console.warn('问题缺少选项:', question)
+        return
+      }
+      
+      // 计算当前问题的最大可能分数
+      const questionMaxScore = Math.max(...question.options.map(opt => opt.score || 0))
+      maxScore += questionMaxScore
+      
+      if (Array.isArray(selectedValues)) {
+        // 多选题或单选题都用数组处理
+        selectedValues.forEach(value => {
+          const option = question.options.find(opt => opt.value === value)
+          if (option) {
+            totalScore += option.score || 0
+          }
+        })
+      } else if (selectedValues) {
+        // 单个值的情况
+        const option = question.options.find(opt => opt.value === selectedValues)
         if (option) {
           totalScore += option.score || 0
         }
-      })
-      maxScore += Math.max(...answer.question.options.map(opt => opt.score || 0))
-    } else {
-      // 单选题
-      const option = answer.question.options.find(opt => opt.value === answer.selectedValues)
-      if (option) {
-        totalScore += option.score || 0
       }
-      maxScore += Math.max(...answer.question.options.map(opt => opt.score || 0))
-    }
-  })
+    })
+  } catch (error) {
+    console.error('计算总分时出错:', error)
+  }
   
   return {
     total_score: totalScore,

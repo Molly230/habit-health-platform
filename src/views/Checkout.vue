@@ -140,7 +140,7 @@
             
             <div class="summary-item">
               <span>运费：</span>
-              <span v-if="checkoutData.subtotal >= 99">免运费</span>
+              <span v-if="checkoutData.finalTotal >= 99">免运费</span>
               <span v-else>¥10.00</span>
             </div>
             
@@ -148,7 +148,7 @@
             
             <div class="summary-item total">
               <span>实付金额：</span>
-              <span class="total-amount">¥{{ checkoutData.finalTotal.toFixed(2) }}</span>
+              <span class="total-amount">¥{{ getFinalAmount().toFixed(2) }}</span>
             </div>
           </div>
         </el-card>
@@ -162,7 +162,7 @@
             :loading="submitting"
             class="submit-btn"
           >
-            {{ submitting ? '提交中...' : `立即支付 ¥${checkoutData.finalTotal.toFixed(2)}` }}
+            {{ submitting ? '提交中...' : `确认订单信息` }}
           </el-button>
         </div>
       </div>
@@ -225,14 +225,68 @@
         <el-button type="primary" @click="addAddress">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 二维码支付对话框 -->
+    <el-dialog 
+      v-model="showPaymentDialog" 
+      title="扫码支付" 
+      width="400px"
+      :show-close="false"
+      :close-on-click-modal="false"
+      center
+    >
+      <div class="payment-dialog">
+        <div class="payment-header">
+          <div class="payment-amount">
+            ¥{{ getFinalAmount()?.toFixed(2) }}
+          </div>
+          <div class="payment-method-name">
+            {{ getPaymentMethodName() }}
+          </div>
+        </div>
+        
+        <div class="qr-code-section">
+          <div class="qr-code-container">
+            <div v-if="paymentStatus === 'waiting'" class="qr-code">
+              <div class="qr-placeholder">
+                {{ generatePaymentQR() }}
+              </div>
+            </div>
+            <div v-else-if="paymentStatus === 'success'" class="payment-success">
+              <el-icon size="60" color="#67c23a"><CircleCheck /></el-icon>
+              <p>支付成功</p>
+            </div>
+            <div v-else-if="paymentStatus === 'expired'" class="payment-expired">
+              <el-icon size="60" color="#f56c6c"><CircleClose /></el-icon>
+              <p>二维码已过期</p>
+              <el-button type="primary" @click="regenerateQR">重新生成</el-button>
+            </div>
+          </div>
+          
+          <div v-if="paymentStatus === 'waiting'" class="payment-tips">
+            <p>请使用{{ getPaymentMethodName() }}扫描二维码完成支付</p>
+            <p class="countdown">{{ formatCountdown }}</p>
+          </div>
+        </div>
+        
+        <div class="payment-actions">
+          <el-button v-if="paymentStatus === 'waiting'" @click="cancelPayment">
+            取消支付
+          </el-button>
+          <el-button v-else-if="paymentStatus === 'success'" type="primary" @click="confirmSuccess" :loading="submitting">
+            {{ submitting ? '处理中...' : '确认' }}
+          </el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { CreditCard, Location, Box, Wallet, Document, Plus } from '@element-plus/icons-vue'
+import { CreditCard, Location, Box, Wallet, Document, Plus, CircleCheck, CircleClose } from '@element-plus/icons-vue'
 
 const router = useRouter()
 
@@ -243,6 +297,13 @@ const submitting = ref(false)
 const showAddressDialog = ref(false)
 const showAddAddressDialog = ref(false)
 const selectedAddressId = ref(null)
+
+// 二维码支付相关
+const showPaymentDialog = ref(false)
+const paymentStatus = ref('waiting') // waiting, success, expired
+const paymentCountdown = ref(300) // 5分钟倒计时
+const paymentTimer = ref(null)
+const paymentCheckTimer = ref(null)
 
 // 地址数据
 const addresses = ref([
@@ -271,6 +332,23 @@ const selectedAddress = computed(() => {
   return addresses.value.find(addr => addr.id === selectedAddressId.value) || 
          addresses.value.find(addr => addr.isDefault)
 })
+
+// 计算倒计时显示
+const formatCountdown = computed(() => {
+  const minutes = Math.floor(paymentCountdown.value / 60)
+  const seconds = paymentCountdown.value % 60
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+})
+
+// 计算最终应付金额（包含运费）
+const getFinalAmount = () => {
+  if (!checkoutData.value) return 0
+  
+  const discountedTotal = checkoutData.value.finalTotal
+  const shipping = discountedTotal >= 99 ? 0 : 10
+  
+  return discountedTotal + shipping
+}
 
 // 选择地址
 const selectAddress = (address) => {
@@ -313,7 +391,7 @@ const addAddress = () => {
   ElMessage.success('地址添加成功')
 }
 
-// 提交订单
+// 提交订单（现在只是确认信息，实际支付在二维码对话框中）
 const submitOrder = async () => {
   if (!selectedAddress.value) {
     ElMessage.error('请选择收货地址')
@@ -323,10 +401,121 @@ const submitOrder = async () => {
   submitting.value = true
   
   try {
-    // 模拟订单提交
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // 模拟订单信息验证
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // 显示二维码支付对话框
+    showPaymentDialog.value = true
+    paymentStatus.value = 'waiting'
+    paymentCountdown.value = 300
+    
+    // 启动倒计时
+    startPaymentCountdown()
+    
+    // 启动支付状态检查（模拟）
+    startPaymentStatusCheck()
+    
+  } catch (error) {
+    ElMessage.error('订单信息验证失败，请重试')
+  } finally {
+    submitting.value = false
+  }
+}
+
+// 获取支付方式名称
+const getPaymentMethodName = () => {
+  const methods = {
+    'wechat': '微信支付',
+    'alipay': '支付宝',
+    'unionpay': '银联支付'
+  }
+  return methods[selectedPayment.value] || '微信支付'
+}
+
+// 生成二维码（这里用文本模拟，实际应用中会生成真正的二维码）
+const generatePaymentQR = () => {
+  const qrContent = {
+    paymentMethod: selectedPayment.value,
+    amount: checkoutData.value?.finalTotal,
+    orderId: 'ORDER_' + Date.now(),
+    timestamp: Date.now()
+  }
+  
+  // 这里模拟二维码显示，实际项目中会使用qrcode.js等库生成真正的二维码
+  return `
+    ████ ▄▄▄▄▄ █▀█ █▄█▀▀▀▄▄▄ █▄▄▄▄▄ ████
+    ████ █   █ █▀▀▀█ ██▄▀██▀█ █   █ ████
+    ████ █▄▄▄█ █▀ █▄▄▄▀██▄▄▀█ █▄▄▄█ ████
+    ████▄▄▄▄▄▄▄█ ▀ █ █ █ █ █ █▄▄▄▄▄▄████
+    ████▀▀▀▀▀▄▄▄▄▄▄▀▀██▄▄█▄▀▄▀▀▀▀▀▀▀████
+    ████ ▄ ▄▄▄ ▄█▄█▀▄▄██▀▄█▄█ ▄ ▄▄▄ ████
+    
+    扫码支付 ¥${getFinalAmount()?.toFixed(2)}
+    `
+}
+
+// 开始支付倒计时
+const startPaymentCountdown = () => {
+  if (paymentTimer.value) {
+    clearInterval(paymentTimer.value)
+  }
+  
+  paymentTimer.value = setInterval(() => {
+    if (paymentCountdown.value > 0) {
+      paymentCountdown.value--
+    } else {
+      // 倒计时结束，二维码过期
+      paymentStatus.value = 'expired'
+      clearInterval(paymentTimer.value)
+      clearInterval(paymentCheckTimer.value)
+    }
+  }, 1000)
+}
+
+// 模拟支付状态检查
+const startPaymentStatusCheck = () => {
+  if (paymentCheckTimer.value) {
+    clearInterval(paymentCheckTimer.value)
+  }
+  
+  // 模拟10-30秒后支付成功
+  const successDelay = 10000 + Math.random() * 20000
+  
+  setTimeout(() => {
+    if (paymentStatus.value === 'waiting') {
+      paymentStatus.value = 'success'
+      clearInterval(paymentTimer.value)
+      clearInterval(paymentCheckTimer.value)
+      ElMessage.success('支付成功！')
+    }
+  }, successDelay)
+}
+
+// 重新生成二维码
+const regenerateQR = () => {
+  paymentStatus.value = 'waiting'
+  paymentCountdown.value = 300
+  startPaymentCountdown()
+  startPaymentStatusCheck()
+}
+
+// 取消支付
+const cancelPayment = () => {
+  clearInterval(paymentTimer.value)
+  clearInterval(paymentCheckTimer.value)
+  showPaymentDialog.value = false
+  paymentStatus.value = 'waiting'
+}
+
+// 确认支付成功
+const confirmSuccess = async () => {
+  try {
+    submitting.value = true // 添加加载状态
     
     // 创建订单数据
+    const finalAmount = getFinalAmount()
+    const shipping = checkoutData.value.finalTotal >= 99 ? 0 : 10
+    
     const orderData = {
       id: 'ORDER_' + Date.now(),
       items: checkoutData.value.items,
@@ -334,7 +523,8 @@ const submitOrder = async () => {
       payment: selectedPayment.value,
       subtotal: checkoutData.value.subtotal,
       discount: checkoutData.value.comboDiscount,
-      total: checkoutData.value.finalTotal,
+      shipping: shipping,
+      total: finalAmount,
       status: 'paid',
       createTime: new Date().toISOString()
     }
@@ -349,13 +539,23 @@ const submitOrder = async () => {
     localStorage.removeItem('checkoutData')
     localStorage.removeItem('comboOffer')
     
-    ElMessage.success('订单提交成功！')
+    // 关闭支付对话框
+    showPaymentDialog.value = false
+    paymentStatus.value = 'waiting' // 重置状态
     
-    // 跳转到订单成功页面
-    router.push(`/order-success?orderId=${orderData.id}`)
+    // 清理定时器
+    clearInterval(paymentTimer.value)
+    clearInterval(paymentCheckTimer.value)
+    
+    ElMessage.success('订单创建成功！')
+    
+    // 延迟跳转，确保对话框完全关闭
+    setTimeout(() => {
+      router.push(`/order-success?orderId=${orderData.id}`)
+    }, 500)
     
   } catch (error) {
-    ElMessage.error('订单提交失败，请重试')
+    ElMessage.error('订单处理失败，请重试')
   } finally {
     submitting.value = false
   }
@@ -385,6 +585,16 @@ onMounted(() => {
   const defaultAddress = addresses.value.find(addr => addr.isDefault)
   if (defaultAddress) {
     selectedAddressId.value = defaultAddress.id
+  }
+})
+
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  if (paymentTimer.value) {
+    clearInterval(paymentTimer.value)
+  }
+  if (paymentCheckTimer.value) {
+    clearInterval(paymentCheckTimer.value)
   }
 })
 </script>
@@ -646,6 +856,99 @@ onMounted(() => {
   border-top: 1px solid #e4e7ed;
 }
 
+/* 二维码支付对话框样式 */
+.payment-dialog {
+  text-align: center;
+}
+
+.payment-header {
+  margin-bottom: 20px;
+}
+
+.payment-amount {
+  font-size: 24px;
+  font-weight: bold;
+  color: #e74c3c;
+  margin-bottom: 5px;
+}
+
+.payment-method-name {
+  color: #666;
+  font-size: 14px;
+}
+
+.qr-code-section {
+  margin: 20px 0;
+}
+
+.qr-code-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.qr-code {
+  width: 200px;
+  height: 200px;
+  border: 2px solid #e4e7ed;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.qr-placeholder {
+  font-family: monospace;
+  font-size: 8px;
+  line-height: 1;
+  color: #333;
+  white-space: pre;
+  text-align: center;
+  padding: 10px;
+}
+
+.payment-success,
+.payment-expired {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #e4e7ed;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.payment-success p,
+.payment-expired p {
+  margin: 10px 0 0;
+  font-weight: 500;
+}
+
+.payment-tips {
+  color: #666;
+  font-size: 14px;
+}
+
+.payment-tips p {
+  margin: 5px 0;
+}
+
+.countdown {
+  font-weight: bold;
+  color: #e74c3c;
+  font-size: 16px;
+}
+
+.payment-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
 @media (max-width: 768px) {
   .product-item {
     flex-direction: column;
@@ -661,6 +964,17 @@ onMounted(() => {
   
   .payment-method {
     gap: 10px;
+  }
+  
+  .qr-code,
+  .payment-success,
+  .payment-expired {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .qr-placeholder {
+    font-size: 6px;
   }
 }
 </style>

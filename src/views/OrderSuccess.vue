@@ -51,7 +51,7 @@
           <h3>🎁 服务承诺</h3>
           <div class="promise-items">
             <div class="promise-item">
-              <el-icon><Truck /></el-icon>
+              <el-icon><Van /></el-icon>
               <div>
                 <strong>快速发货</strong>
                 <p>24小时内发货，顺丰包邮</p>
@@ -59,7 +59,7 @@
             </div>
             
             <div class="promise-item">
-              <el-icon><Shield /></el-icon>
+              <el-icon><SuccessFilled /></el-icon>
               <div>
                 <strong>品质保证</strong>
                 <p>正品保证，支持7天无理由退换</p>
@@ -67,7 +67,7 @@
             </div>
             
             <div class="promise-item">
-              <el-icon><Phone /></el-icon>
+              <el-icon><SuccessFilled /></el-icon>
               <div>
                 <strong>贴心服务</strong>
                 <p>专业客服，随时为您解答</p>
@@ -103,7 +103,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { SuccessFilled, Truck, Shield, Phone } from '@element-plus/icons-vue'
+import { SuccessFilled, Van } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()

@@ -3,10 +3,20 @@
     <!-- 聊天标题 -->
     <div class="chat-header">
       <div class="header-content">
-        <el-icon class="chat-icon"><ChatLineRound /></el-icon>
-        <div class="header-text">
-          <h2>中医智能助手</h2>
-          <p>专业的中医失眠健康指导，基于传统中医理论为您答疑解惑</p>
+        <div class="header-left">
+          <el-button 
+            circle 
+            @click="goBack" 
+            class="back-button"
+            size="small"
+          >
+            <el-icon><ArrowLeft /></el-icon>
+          </el-button>
+          <el-icon class="chat-icon"><ChatLineRound /></el-icon>
+          <div class="header-text">
+            <h2>中医智能助手</h2>
+            <p>专业的中医失眠健康指导，基于传统中医理论为您答疑解惑</p>
+          </div>
         </div>
         <div class="header-status">
           <el-tag :type="isOnline ? 'success' : 'danger'" size="small">
@@ -166,7 +176,8 @@
       <div class="input-tips">
         <el-text size="small" type="info">
           💡 按 Ctrl + Enter 快速发送 | Enter 换行 | 
-          <el-button text size="small" @click="clearChat">清空聊天</el-button>
+          <el-button text size="small" @click="clearChat">清空聊天</el-button> | 
+          <el-button text size="small" @click="permanentClear" type="danger">永久清除</el-button>
         </el-text>
       </div>
     </div>
@@ -224,6 +235,7 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
 import { 
   ChatLineRound, 
   UserFilled, 
@@ -232,9 +244,13 @@ import {
   Promotion, 
   Download, 
   Reading,
-  QuestionFilled 
+  QuestionFilled,
+  ArrowLeft
 } from '@element-plus/icons-vue'
 import { chatAPI } from '../api/chatAPI'
+
+// 路由
+const router = useRouter()
 
 // 响应式数据
 const messages = ref([])
@@ -387,6 +403,51 @@ const clearChat = async () => {
   }
 }
 
+// 永久清除所有数据
+const permanentClear = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '永久清除将删除以下所有数据：\n\n• 聊天记录\n• 问卷答案\n• 诊断结果\n• 购物车内容\n• 所有缓存数据\n\n此操作不可恢复！确定要继续吗？', 
+      '⚠️ 永久清除确认', 
+      {
+        type: 'error',
+        confirmButtonText: '确定清除',
+        cancelButtonText: '取消',
+        confirmButtonClass: 'el-button--danger'
+      }
+    )
+    
+    // 清除所有localStorage数据
+    const keysToRemove = [
+      'latestAnswers',
+      'latestDiagnosis', 
+      'latestDiagnosisSaved',
+      'cart',
+      'chatHistory',
+      'userProfile',
+      'consultationHistory'
+    ]
+    
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key)
+    })
+    
+    // 清除当前页面状态
+    messages.value = []
+    conversationId.value = ''
+    userId.value = 'user-' + Date.now()
+    
+    ElMessage({
+      type: 'success',
+      message: '所有数据已永久清除！',
+      duration: 3000
+    })
+    
+  } catch {
+    // 用户取消
+  }
+}
+
 // 导出聊天记录
 const exportChat = () => {
   const chatData = messages.value.map(msg => ({
@@ -441,6 +502,11 @@ const selectTopic = (topic) => {
   sendQuickQuestion(question)
 }
 
+// 返回上级菜单
+const goBack = () => {
+  router.push('/')
+}
+
 // 显示帮助
 const showHelp = () => {
   ElMessageBox.alert(
@@ -474,6 +540,25 @@ const showHelp = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.back-button {
+  margin-right: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  transition: all 0.3s;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-2px);
 }
 
 .chat-icon {

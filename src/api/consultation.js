@@ -277,13 +277,16 @@ export const submitQuestionnaireAnswers = async (answers) => {
       user_id: 'user-' + Date.now()
     })
     
+    // 检查响应数据结构
+    const result = response.data || response
+    
     // 保存评估结果到本地存储
-    if (response.success) {
-      localStorage.setItem('latestAssessment', JSON.stringify(response.data))
+    if (result.success) {
+      localStorage.setItem('latestAssessment', JSON.stringify(result.data))
       localStorage.setItem('latestAssessmentTime', new Date().toISOString())
     }
     
-    return response
+    return result
     
   } catch (error) {
     // 提交问卷失败
